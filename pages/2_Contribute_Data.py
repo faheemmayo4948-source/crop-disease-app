@@ -1,6 +1,7 @@
 import time
 import streamlit as st
-from lib.firebase_client import upload_sample
+from lib.cloudinary_client import upload_image
+from lib.firebase_client import save_sample
 
 st.set_page_config(page_title="Contribute Data · CropGuard", page_icon="📤")
 
@@ -22,9 +23,9 @@ if st.button("Submit sample", type="primary"):
             try:
                 file_bytes = uploaded_file.getvalue()
                 file_name = f"{int(time.time())}_{uploaded_file.name}"
-                content_type = uploaded_file.type or "image/jpeg"
 
-                upload_sample(file_bytes, file_name, content_type, crop_name, disease_label)
+                image_url = upload_image(file_bytes, file_name)
+                save_sample(crop_name, disease_label, image_url)
 
                 st.success("Thank you — your sample has been added.")
             except Exception as e:
