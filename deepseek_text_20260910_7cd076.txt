@@ -1,0 +1,4 @@
+crop-disease-app/
+├── app.py
+├── requirements.txt
+└── model.h5 (auto download ho jayega)
