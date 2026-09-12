@@ -16,7 +16,8 @@ def get_db():
     return firestore.client()
 
 
-def save_sample(crop_name, disease_label, image_url, farmer_uid=None, farmer_email=None):
+def save_sample(crop_name, disease_label, image_url, farmer_uid=None, farmer_email=None,
+                 latitude=None, longitude=None):
     db = get_db()
     db.collection("samples").add(
         {
@@ -25,5 +26,7 @@ def save_sample(crop_name, disease_label, image_url, farmer_uid=None, farmer_ema
             "imageUrl": image_url,
             "farmerUid": farmer_uid,
             "farmerEmail": farmer_email,
+            "latitude": latitude,
+            "longitude": longitude,
         }
     )
