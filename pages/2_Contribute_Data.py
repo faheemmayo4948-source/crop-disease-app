@@ -6,6 +6,13 @@ from lib.firebase_client import save_sample
 st.set_page_config(page_title="Contribute Data · CropGuard", page_icon="📤")
 
 st.title("📤 Contribute a labeled sample")
+
+if "user" not in st.session_state or not st.session_state.user:
+    st.warning("Please log in first to contribute a sample.")
+    st.page_link("pages/5_Account.py", label="👤 Go to Account page", icon="👤")
+    st.stop()
+
+st.write(f"Contributing as: **{st.session_state.user['email']}**")
 st.write("Help grow the dataset used for research and future model training.")
 
 crop_name = st.text_input("Crop name", placeholder="e.g. Rice, Wheat, Tomato")
@@ -25,7 +32,13 @@ if st.button("Submit sample", type="primary"):
                 file_name = f"{int(time.time())}_{uploaded_file.name}"
 
                 image_url = upload_image(file_bytes, file_name)
-                save_sample(crop_name, disease_label, image_url)
+                save_sample(
+                    crop_name,
+                    disease_label,
+                    image_url,
+                    farmer_uid=st.session_state.user["uid"],
+                    farmer_email=st.session_state.user["email"],
+                )
 
                 st.success("Thank you — your sample has been added.")
             except Exception as e:
