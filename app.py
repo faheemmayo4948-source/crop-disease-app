@@ -13,13 +13,15 @@ st.write(
     """
 )
 
-col1, col2, col3 = st.columns(3)
+col1, col2, col3, col4 = st.columns(4)
 with col1:
     st.page_link("pages/1_Detect_Disease.py", label="🔍 Detect a disease", icon="🔍")
 with col2:
     st.page_link("pages/2_Contribute_Data.py", label="📤 Contribute a sample", icon="📤")
 with col3:
     st.page_link("pages/3_Disease_Database.py", label="🌍 Browse database", icon="🌍")
+with col4:
+    st.page_link("pages/5_Account.py", label="👤 My account", icon="👤")
 
 st.divider()
 
