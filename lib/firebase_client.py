@@ -16,13 +16,14 @@ def get_db():
     return firestore.client()
 
 
-def save_sample(crop_name, disease_label, image_url):
-    """Save the sample's label and Cloudinary image URL to Firestore."""
+def save_sample(crop_name, disease_label, image_url, farmer_uid=None, farmer_email=None):
     db = get_db()
     db.collection("samples").add(
         {
             "cropName": crop_name,
             "diseaseLabel": disease_label,
             "imageUrl": image_url,
+            "farmerUid": farmer_uid,
+            "farmerEmail": farmer_email,
         }
     )
