@@ -1,45 +1,68 @@
 import streamlit as st
+import pandas as pd
 from lib.firebase_client import get_db
 
-st.set_page_config(page_title="Gallery · CropGuard", page_icon="🖼️", layout="wide")
+st.set_page_config(page_title="Gallery · CropGuard", page_icon="🔒", layout="wide")
 
-st.title("🖼️ Contributed Samples Gallery")
-st.write("Every leaf sample contributed by farmers, with its crop and disease label.")
+# --- Password gate ---
+if "admin_authenticated" not in st.session_state:
+    st.session_state.admin_authenticated = False
+
+if not st.session_state.admin_authenticated:
+    st.title("🔒 Admin Access Required")
+    password = st.text_input("Enter admin password", type="password")
+    if st.button("Unlock"):
+        if password == st.secrets.get("admin_password"):
+            st.session_state.admin_authenticated = True
+            st.rerun()
+        else:
+            st.error("Incorrect password.")
+    st.stop()
+
+# --- Everything below is only visible after correct password ---
+st.title("🖼️ Contributed Samples (Private)")
+st.caption("This data is private — visible only to admins, never to public visitors.")
 
 
 @st.cache_data(ttl=60)
 def load_samples():
     db = get_db()
-    docs = db.collection("samples").order_by(
-        "createdAt", direction="DESCENDING"
-    ).stream() if False else db.collection("samples").stream()
-    samples = []
-    for doc in docs:
-        data = doc.to_dict()
-        samples.append(data)
-    return samples
+    docs = db.collection("samples").stream()
+    return [doc.to_dict() for doc in docs]
 
 
 samples = load_samples()
 
 if not samples:
-    st.info("No samples contributed yet. Be the first — go to 'Contribute a sample'.")
+    st.info("No samples contributed yet.")
 else:
-    crop_options = ["All crops"] + sorted({s.get("cropName", "Unknown") for s in samples})
+    df = pd.DataFrame(samples)
+    st.caption(f"Total samples: {len(df)}")
+
+    crop_options = ["All crops"] + sorted(df["cropName"].dropna().unique().tolist())
     crop_filter = st.selectbox("Filter by crop", crop_options)
+    filtered_df = df if crop_filter == "All crops" else df[df["cropName"] == crop_filter]
 
-    filtered = samples if crop_filter == "All crops" else [
-        s for s in samples if s.get("cropName") == crop_filter
-    ]
+    # CSV export for companies
+    csv = filtered_df.to_csv(index=False).encode("utf-8")
+    st.download_button(
+        "📥 Download as CSV (for company sharing)",
+        data=csv,
+        file_name="cropguard_samples.csv",
+        mime="text/csv",
+    )
 
-    st.caption(f"Showing {len(filtered)} of {len(samples)} samples")
+    st.divider()
 
     cols = st.columns(3)
-    for i, sample in enumerate(filtered):
+    for i, row in filtered_df.reset_index(drop=True).iterrows():
         with cols[i % 3]:
-            image_url = sample.get("imageUrl")
-            if image_url:
-                st.image(image_url, use_container_width=True)
-            st.markdown(f"**{sample.get('cropName', 'Unknown')}**")
-            st.caption(sample.get("diseaseLabel", "No label"))
+            if pd.notna(row.get("imageUrl")):
+                st.image(row["imageUrl"], use_container_width=True)
+            st.markdown(f"**{row.get('cropName', 'Unknown')}**")
+            st.caption(row.get("diseaseLabel", "No label"))
             st.divider()
+
+if st.button("🔒 Lock again"):
+    st.session_state.admin_authenticated = False
+    st.rerun()
