@@ -2,7 +2,7 @@ import requests
 import streamlit as st
 
 MODEL_ID = "linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
-HF_ENDPOINT = f"https://api-inference.huggingface.co/models/{MODEL_ID}"
+HF_ENDPOINT = f"https://router.huggingface.co/hf-inference/models/{MODEL_ID}"
 
 
 def detect_disease(image_bytes, content_type="image/jpeg"):
