@@ -13,7 +13,7 @@ st.write(
     """
 )
 
-col1, col2, col3, col4 = st.columns(4)
+col1, col2, col3, col4, col5 = st.columns(5)
 with col1:
     st.page_link("pages/1_Detect_Disease.py", label="🔍 Detect a disease", icon="🔍")
 with col2:
@@ -22,6 +22,8 @@ with col3:
     st.page_link("pages/3_Disease_Database.py", label="🌍 Browse database", icon="🌍")
 with col4:
     st.page_link("pages/5_Account.py", label="👤 My account", icon="👤")
+with col5:
+    st.page_link("pages/7_Disease_Forecast.py", label="🌤️ Weather forecast", icon="🌤️")
 
 st.divider()
 
