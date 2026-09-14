@@ -3,7 +3,6 @@ import requests
 import streamlit as st
 from io import BytesIO
 
-# ReportLab imports for PDF generation
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, HRFlowable
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -12,13 +11,9 @@ from reportlab.lib import colors
 PLANT_ID_URL = "https://plant.id/api/v3/health_assessment"
 
 def get_location_based_sprays(disease_name, latitude=None):
-    """
-    Guaranteed recommendations for Fungal, Bacterial, Viral, and Pest vectors.
-    """
     disease_lower = str(disease_name).lower()
     is_south_asia = latitude is None or (5.0 <= latitude <= 37.0)
 
-    # 1. FUNGAL LEAF SPOTS & BLIGHTS (Bipolaris, Physoderma, Alternaria, Cercospora, etc.)
     if any(k in disease_lower for k in [
         "bipolaris", "physoderma", "alternaria", "cercospora", "phytophthora", 
         "helminthosporium", "septoria", "blight", "spot", "scab", "anthracnose", "leaf"
@@ -36,7 +31,6 @@ def get_location_based_sprays(disease_name, latitude=None):
             "Chlorothalonil 500 SC — 2ml/L water"
         ]
 
-    # 2. POWDERY & DOWNY MILDEWS / RUSTS
     elif any(k in disease_lower for k in [
         "rust", "mildew", "puccinia", "erysiphe", "oidium", "peronospora", "plasmopara"
     ]):
@@ -51,7 +45,6 @@ def get_location_based_sprays(disease_name, latitude=None):
             "Sulfur Dusting / Wettable Sulfur Spray"
         ]
 
-    # 3. WILTS & ROTS
     elif any(k in disease_lower for k in [
         "rot", "wilt", "fusarium", "rhizoctonia", "pythium", "sclerotium", "verticillium"
     ]):
@@ -66,7 +59,6 @@ def get_location_based_sprays(disease_name, latitude=None):
             "Metalaxyl Systemic Fungicide"
         ]
 
-    # 4. BACTERIAL & INSECT VECTORS
     elif any(k in disease_lower for k in [
         "bacterial", "xanthomonas", "pseudomonas", "erwinia", "virus", "mosaic", "curl"
     ]):
@@ -76,7 +68,6 @@ def get_location_based_sprays(disease_name, latitude=None):
             "Imidacloprid 17.8% SL (For Vectors) — 0.5ml/L water"
         ]
 
-    # 5. GUARANTEED FALLBACK (ALWAYS RETURNS RECOMMENDATIONS)
     return [
         "Mancozeb 75% WP (Broad Spectrum Fungicide) — 2g/L water",
         "Chlorothalonil 75% WP — 2g/L water",
@@ -85,9 +76,6 @@ def get_location_based_sprays(disease_name, latitude=None):
 
 
 def detect_disease(image_bytes: bytes, content_type: str = "image/jpeg", latitude: float = None, longitude: float = None):
-    """
-    Robust Plant.id API parsing engine with deep structure extraction.
-    """
     api_key = st.secrets.get("PLANT_ID_API_KEY", "")
     if not api_key:
         st.warning("⚠️ PLANT_ID_API_KEY Missing in Streamlit Secrets")
@@ -122,17 +110,14 @@ def detect_disease(image_bytes: bytes, content_type: str = "image/jpeg", latitud
                 details = item.get("details", {}) or {}
                 treatment_data = details.get("treatment", {}) or {}
 
-                # Deep Safe Extraction
                 bio_raw = treatment_data.get("biological", [])
                 chem_raw = treatment_data.get("chemical", [])
                 prev_raw = details.get("preventative_measures", [])
 
-                # Normalization to lists
                 bio = bio_raw if isinstance(bio_raw, list) else ([bio_raw] if bio_raw else [])
                 chem = chem_raw if isinstance(chem_raw, list) else ([chem_raw] if chem_raw else [])
                 prev = prev_raw if isinstance(prev_raw, list) else ([prev_raw] if prev_raw else [])
 
-                # Force location sprays generation
                 local_sprays = get_location_based_sprays(disease_name, latitude)
 
                 results.append({
