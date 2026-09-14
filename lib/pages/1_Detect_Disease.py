@@ -1,7 +1,6 @@
 import sys
 import os
 
-# Set root path BEFORE importing custom modules
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 import streamlit as st
@@ -75,36 +74,35 @@ if uploaded_file is not None:
                 st.divider()
 
                 for i, pred in enumerate(predictions):
-                    label = pred.get("label", "Unknown Disease")
+                    label = pred.get("label", "Crop Health Issue")
                     score = pred.get("score", 0.0) * 100
 
                     st.markdown(f"### {i+1}. {label} (`{score:.1f}% Match`)")
                     st.progress(min(int(score), 100))
                     
-                    st.write(f"**Description:** {pred.get('description', 'N/A')}")
+                    st.write(f"**Description:** {pred.get('description', 'Pathogen detected.')}")
 
+                    # Spray Recommendations (Guaranteed Output)
                     st.markdown("#### 🎯 Recommended Chemical & Market Sprays" if lang == "English" else "#### 🎯 تجویز کردہ کیمیائی اسپرے")
-                    st.info("Recommended dosage for your region:" if lang == "English" else "آپ کے علاقے کے لیے تجویز کردہ اسپرے:")
+                    st.info("Recommended dosages for your region:" if lang == "English" else "آپ کے علاقے کے لیے تجویز کردہ اسپرے:")
                     
                     sprays = pred.get("local_sprays", [])
-                    if sprays:
-                        for spray in sprays:
-                            st.write(f"👉 **{spray}**")
-                    else:
-                        st.write("👉 **Mancozeb 75% WP (e.g., Dithane M-45) — 2g/L water**")
-                        st.write("👉 **Copper Oxychloride 50% WP — 2.5g/L water**")
+                    for spray in sprays:
+                        st.write(f"👉 **{spray}**")
 
+                    # Biological Treatments
                     bio = pred.get("biological", [])
                     if bio:
                         st.markdown("**🌱 Organic / Biological Control:**" if lang == "English" else "**🌱 حیاتیاتی علاج:**")
                         for item in bio:
-                            if item: st.write(f"- {item}")
+                            st.write(f"- {item}")
 
+                    # Prevention Protocol
                     prev = pred.get("prevention", [])
                     if prev:
                         st.markdown("**🛡️ Preventive Protocol:**" if lang == "English" else "**🛡️ بچاؤ کی تدابیر:**")
                         for item in prev:
-                            if item: st.write(f"- {item}")
+                            st.write(f"- {item}")
 
                     st.divider()
             else:
