@@ -1,85 +1,10 @@
-import base64
 import streamlit as st
 
 # Page config must be the very first Streamlit command
 st.set_page_config(page_title="CropGuard", page_icon="🌾", layout="centered")
-st.markdown("""
-<style>
-    /* Custom font import */
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
 
-    html, body, [class*="css"] {
-        font-family: 'Poppins', sans-serif;
-    }
-
-    /* Buttons */
-    .stButton > button {
-        border-radius: 8px;
-        border: none;
-        background-color: #1F7A4D;
-        color: white;
-        font-weight: 600;
-        padding: 0.5rem 1.5rem;
-        transition: all 0.2s ease;
-    }
-    .stButton > button:hover {
-        background-color: #16532F;
-        transform: translateY(-1px);
-    }
-
-    /* Headings */
-    h1, h2, h3 {
-        color: #16532F;
-    }
-
-    /* Metric cards */
-    [data-testid="stMetric"] {
-        background-color: #EDF3ED;
-        border-radius: 10px;
-        padding: 1rem;
-        border: 1px solid #D4E4D8;
-    }
-
-    /* Page links (navigation buttons) */
-    [data-testid="stPageLink"] {
-        border-radius: 8px;
-        background-color: #EDF3ED;
-        padding: 0.3rem 0.8rem;
-    }
-</style>
-""", unsafe_allow_html=True)
-# Inline Base64 Banner Code (Muhammad Faheem Image)
-BANNER_HTML = """
-<div style="width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 25px;">
-    <img src="https://i.ibb.co/6R2S38s/hero-banner.png" style="width: 100%; height: auto; display: block;" alt="Muhammad Faheem - CropGuard Banner">
-</div>
-"""
-
-# Alternative via Direct File Embed (Safe fallback protection)
-def load_embedded_banner():
-    # Render direct banner styling
-    st.markdown(
-        """
-        <style>
-        .banner-img {
-            width: 100%;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-        }
-        </style>
-        """,
-        unsafe_allow_html=True
-    )
-
-load_embedded_banner()
-
-# Attempt to load local/cloud image, fallback gracefully
-try:
-    st.image("assets/hero-banner.png", use_container_width=True)
-except Exception:
-    # If file isn't uploaded yet, show stylized header card
-    st.info("💡 **Developer Note:** Photo ko `assets/hero-banner.png` par upload karein. App layout ready hai.")
+# Direct Image URL (Postimages Link)
+st.image("https://i.postimg.cc/P5wr1nqM/hero-banner-png.png", use_container_width=True)
 
 # Header Section
 st.title("🌾 CropGuard")
