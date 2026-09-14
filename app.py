@@ -1,15 +1,10 @@
 import streamlit as st
 
-st.set_page_config(page_title="CropGuard", page_icon="🌾", layout="centered")
-
-import streamlit as st
-
+# Page config must be the very first Streamlit command
 st.set_page_config(page_title="CropGuard", page_icon="🌾", layout="centered")
 
 st.image("assets/hero-banner.png", use_container_width=True)
 
-st.title("🌾 CropGuard")
-st.subheader("Spot crop disease early, before it spreads across the field.")
 st.title("🌾 CropGuard")
 st.subheader("Spot crop disease early, before it spreads across the field.")
 
@@ -21,20 +16,22 @@ st.write(
     """
 )
 
+# Navigation Buttons
 col1, col2, col3, col4, col5 = st.columns(5)
 with col1:
-    st.page_link("pages/1_Detect_Disease.py", label="🔍 Detect a disease", icon="🔍")
+    st.page_link("pages/1_Detect_Disease.py", label="🔍 Detect a disease")
 with col2:
-    st.page_link("pages/2_Contribute_Data.py", label="📤 Contribute a sample", icon="📤")
+    st.page_link("pages/2_Contribute_Data.py", label="📤 Contribute a sample")
 with col3:
-    st.page_link("pages/3_Disease_Database.py", label="🌍 Browse database", icon="🌍")
+    st.page_link("pages/3_Disease_Database.py", label="🌍 Browse database")
 with col4:
-    st.page_link("pages/5_Account.py", label="👤 My account", icon="👤")
+    st.page_link("pages/5_Account.py", label="👤 My account")
 with col5:
-    st.page_link("pages/7_Disease_Forecast.py", label="🌤️ Weather forecast", icon="🌤️")
+    st.page_link("pages/7_Disease_Forecast.py", label="🌤️ Weather forecast")
 
 st.divider()
 
+# Info Columns
 c1, c2, c3 = st.columns(3)
 with c1:
     st.markdown("**For farmers**")
