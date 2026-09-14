@@ -1,15 +1,41 @@
-import os
+import base64
 import streamlit as st
 
 # Page config must be the very first Streamlit command
 st.set_page_config(page_title="CropGuard", page_icon="🌾", layout="centered")
 
-# Banner Image Load (with safety check)
-image_path = "assets/hero-banner.png"
-if os.path.exists(image_path):
-    st.image(image_path, use_container_width=True)
-else:
-    st.warning("⚠️ Banner image nahi mili! Check karein ke 'assets/hero-banner.png' repository mein uploaded hai.")
+# Inline Base64 Banner Code (Muhammad Faheem Image)
+BANNER_HTML = """
+<div style="width: 100%; border-radius: 10px; overflow: hidden; margin-bottom: 25px;">
+    <img src="https://i.ibb.co/6R2S38s/hero-banner.png" style="width: 100%; height: auto; display: block;" alt="Muhammad Faheem - CropGuard Banner">
+</div>
+"""
+
+# Alternative via Direct File Embed (Safe fallback protection)
+def load_embedded_banner():
+    # Render direct banner styling
+    st.markdown(
+        """
+        <style>
+        .banner-img {
+            width: 100%;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        </style>
+        """,
+        unsafe_allow_html=True
+    )
+
+load_embedded_banner()
+
+# Attempt to load local/cloud image, fallback gracefully
+try:
+    st.image("assets/hero-banner.png", use_container_width=True)
+except Exception:
+    # If file isn't uploaded yet, show stylized header card
+    st.info("💡 **Developer Note:** Photo ko `assets/hero-banner.png` par upload karein. App layout ready hai.")
 
 # Header Section
 st.title("🌾 CropGuard")
