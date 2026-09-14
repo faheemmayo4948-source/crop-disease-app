@@ -2,6 +2,14 @@ import streamlit as st
 
 st.set_page_config(page_title="CropGuard", page_icon="🌾", layout="centered")
 
+import streamlit as st
+
+st.set_page_config(page_title="CropGuard", page_icon="🌾", layout="centered")
+
+st.image("assets/hero-banner.png", use_container_width=True)
+
+st.title("🌾 CropGuard")
+st.subheader("Spot crop disease early, before it spreads across the field.")
 st.title("🌾 CropGuard")
 st.subheader("Spot crop disease early, before it spreads across the field.")
 
