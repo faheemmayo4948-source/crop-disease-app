@@ -1,95 +1,112 @@
 import streamlit as st
 
-# Page Configuration (Wide layout banner ko full view dene ke liye)
 st.set_page_config(
-    page_title="CropGuard",
-    page_icon="🌾",
-    layout="wide",
-    initial_sidebar_state="expanded"
+    page_title="CropGuard · Smart Disease Diagnostics",
+    page_icon="🌱",
+    layout="centered",
+    initial_sidebar_state="collapsed"
 )
 
-# Custom CSS - Padding fix aur Clean Styling ke liye
-st.markdown(
-    """
-    <style>
-    /* Top whitespace kam karne ke liye */
+# Mobile-First Custom Styling
+st.markdown("""
+<style>
+    .stApp {
+        background-color: #F8FAFC;
+    }
     .block-container {
-        padding-top: 1.5rem;
-        padding-bottom: 2rem;
-        max-width: 1100px;
+        padding-top: 1.5rem !important;
+        padding-bottom: 2rem !important;
+        max-width: 500px !important;
     }
-    
-    /* Image scaling fix */
-    img {
-        border-radius: 8px;
-        object-fit: cover;
+    .app-title {
+        color: #1E293B;
+        font-size: 2.2rem;
+        font-weight: 800;
+        margin-bottom: 0.2rem;
     }
-
-    /* Page Link Buttons ko Box Container Card jaisa look dene ke liye */
-    div[data-testid="stPageLink"] > a {
-        border: 1px solid #d3d3d3;
-        border-radius: 8px;
-        padding: 15px 10px;
-        text-align: center;
+    .app-subtitle {
+        color: #0F766E;
+        font-size: 1.25rem;
+        font-weight: 700;
+        line-height: 1.35;
+        margin-bottom: 0.8rem;
+    }
+    .app-description {
+        color: #475569;
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+    }
+    .action-card {
+        background: #FFFFFF;
+        border: 1px solid #E2E8F0;
+        border-radius: 12px;
+        padding: 14px 16px;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        text-decoration: none !important;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.03);
+    }
+    .icon-box {
+        font-size: 1.4rem;
+        margin-right: 14px;
+        width: 38px;
+        height: 38px;
+        background: #F0FDF4;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
         justify-content: center;
-        box-shadow: 0px 2px 4px rgba(0,0,0,0.05);
-        transition: all 0.2s ease;
     }
-    
-    div[data-testid="stPageLink"] > a:hover {
-        border-color: #2e7d32;
-        background-color: #f4f9f4;
+    .card-text {
+        color: #1E293B;
+        font-weight: 600;
+        font-size: 1rem;
+        flex-grow: 1;
     }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
+    .arrow-icon {
+        color: #94A3B8;
+        font-weight: bold;
+    }
+</style>
+""", unsafe_allow_html=True)
 
-# 1. Full Banner Image (No Cropping)
-st.image("https://i.postimg.cc/P5wr1nqM/hero-banner-png.png", use_container_width=True)
+# Hero Image Header
+st.image("https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=1000&auto=format&fit=crop", use_container_width=True)
 
-# 2. Main Title & Description Section
-st.markdown("## 🌾 **CropGuard**")
-st.markdown("### Spot crop disease early, before it spreads across the field.")
+# Main Title & Subtitle
+st.markdown('<div class="app-title">🌱 CropGuard</div>', unsafe_allow_html=True)
+st.markdown('<div class="app-subtitle">Spot crop disease early, before it spreads across the field.</div>', unsafe_allow_html=True)
+st.markdown('<div class="app-description">Upload a photo of an affected leaf to get AI diagnostics, localized treatment protocols, spray recommendations, and downloadable PDF reports.</div>', unsafe_allow_html=True)
 
-st.write(
-    """
-    Upload a photo of an affected leaf and get an instant diagnosis. 
-    Every contribution also helps build an open dataset for researchers 
-    working on crop health.
-    """
-)
-
-st.write("")  # Extra spacing
-
-# 3. Interactive Cards / Navigation Links
-col1, col2, col3, col4, col5 = st.columns(5)
-
-with col1:
-    st.page_link("pages/1_Detect_Disease.py", label="Detect a disease", icon="🔍")
-with col2:
-    st.page_link("pages/2_Contribute_Data.py", label="Contribute a sample", icon="📤")
-with col3:
-    st.page_link("pages/3_Disease_Database.py", label="Browse database", icon="🌍")
-with col4:
-    st.page_link("pages/5_Account.py", label="My account", icon="👤")
-with col5:
-    st.page_link("pages/7_Disease_Forecast.py", label="Weather forecast", icon="🌤️")
-
-# 4. Proper Horizontal Line (Divider)
 st.divider()
 
-# 5. Three Column Information Cards
-c1, c2, c3 = st.columns(3)
+# Interactive Action Cards for Mobile Navigation
+st.markdown("### 🚀 Quick Services")
 
-with c1:
-    st.markdown("**For farmers**")
-    st.caption("Take a photo of a sick leaf and get a likely diagnosis in seconds.")
+st.markdown("""
+<a href="/Detect_Disease" target="_self" class="action-card">
+    <div class="icon-box">🔍</div>
+    <div class="card-text">Detect a Disease</div>
+    <div class="arrow-icon">❯</div>
+</a>
 
-with c2:
-    st.markdown("**For researchers**")
-    st.caption("Access a growing, labeled dataset of crop images from real fields.")
+<a href="#" target="_self" class="action-card">
+    <div class="icon-box">🧱</div>
+    <div class="card-text">Contribute a Sample</div>
+    <div class="arrow-icon">❯</div>
+</a>
 
-with c3:
-    st.markdown("**For the data**")
-    st.caption("Every contribution builds a global picture of crop health over time.")
+<a href="#" target="_self" class="action-card">
+    <div class="icon-box">🌐</div>
+    <div class="card-text">Browse Database</div>
+    <div class="arrow-icon">❯</div>
+</a>
+
+<a href="#" target="_self" class="action-card">
+    <div class="icon-box">👤</div>
+    <div class="card-text">My Account</div>
+    <div class="arrow-icon">❯</div>
+</a>
+""", unsafe_allow_html=True)
