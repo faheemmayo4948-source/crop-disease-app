@@ -1,3 +1,14 @@
+import sys
+import os
+
+# Root directory ko Python path mein add karne ke liye
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import streamlit as st
+from streamlit_geolocation import streamlit_geolocation
+from lib.detect_disease import detect_disease, generate_pdf_report
+
+# ... baqi ka saara code same rahega ...
 import streamlit as st
 from streamlit_geolocation import streamlit_geolocation
 from lib.detect_disease import detect_disease, generate_pdf_report
