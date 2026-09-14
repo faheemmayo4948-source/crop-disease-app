@@ -1,10 +1,17 @@
+import os
 import streamlit as st
 
 # Page config must be the very first Streamlit command
 st.set_page_config(page_title="CropGuard", page_icon="🌾", layout="centered")
 
-st.image("assets/hero-banner.png", use_container_width=True)
+# Banner Image Load (with safety check)
+image_path = "assets/hero-banner.png"
+if os.path.exists(image_path):
+    st.image(image_path, use_container_width=True)
+else:
+    st.warning("⚠️ Banner image nahi mili! Check karein ke 'assets/hero-banner.png' repository mein uploaded hai.")
 
+# Header Section
 st.title("🌾 CropGuard")
 st.subheader("Spot crop disease early, before it spreads across the field.")
 
@@ -16,7 +23,7 @@ st.write(
     """
 )
 
-# Navigation Buttons
+# Navigation Links
 col1, col2, col3, col4, col5 = st.columns(5)
 with col1:
     st.page_link("pages/1_Detect_Disease.py", label="🔍 Detect a disease")
@@ -31,7 +38,7 @@ with col5:
 
 st.divider()
 
-# Info Columns
+# Information Grid
 c1, c2, c3 = st.columns(3)
 with c1:
     st.markdown("**For farmers**")
