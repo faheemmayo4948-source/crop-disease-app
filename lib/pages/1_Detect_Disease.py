@@ -4,11 +4,10 @@ from lib.detect_disease import detect_disease
 
 st.set_page_config(page_title="Detect Disease · CropGuard", page_icon="🔍")
 
-st.title("🔍 Detect Crop Disease (Plant.id)")
-st.write("Upload a leaf photo for high-accuracy diagnosis and treatment recommendations.")
+st.title("🔍 Detect Crop Disease")
+st.write("Upload a leaf photo for diagnosis and detailed treatment guidance.")
 
 st.subheader("📍 Share location (optional)")
-st.caption("Location helps pinpoint local disease trends.")
 location = streamlit_geolocation()
 
 lat, lon = None, None
@@ -23,7 +22,7 @@ if uploaded_file is not None:
     st.image(uploaded_file, caption="Uploaded leaf preview", use_container_width=True)
 
     if st.button("Run Advanced Detection", type="primary"):
-        with st.spinner("Analyzing plant health via Plant.id..."):
+        with st.spinner("Analyzing plant health..."):
             image_bytes = uploaded_file.getvalue()
             content_type = uploaded_file.type or "image/jpeg"
             
@@ -41,7 +40,7 @@ if uploaded_file is not None:
                         st.progress(min(int(score), 100))
                         st.write(f"**Description:** {pred['description']}")
 
-                        # Treatment Section
+                        st.markdown("---")
                         st.markdown("#### 🛠️ Treatment Options")
                         
                         bio = pred.get("treatment_biological", [])
@@ -50,18 +49,20 @@ if uploaded_file is not None:
 
                         if bio:
                             st.markdown("**🌱 Biological Control:**")
-                            for b in bio:
-                                st.write(f"- {b}")
+                            for item in bio:
+                                st.write(f"- {item}")
+                        
                         if chem:
                             st.markdown("**🧪 Chemical Treatments:**")
-                            for c in chem:
-                                st.write(f"- {c}")
+                            for item in chem:
+                                st.write(f"- {item}")
+                                
                         if prev:
                             st.markdown("**🛡️ Prevention Strategy:**")
-                            for p in prev:
-                                st.write(f"- {p}")
+                            for item in prev:
+                                st.write(f"- {item}")
                         
                         if not bio and not chem and not prev:
-                            st.info("No specific treatment protocol provided for this condition.")
+                            st.info("Is specific disease ke liye API database mein biological/chemical treatments mention nahi hain. (Leaf control/pruning recommended).")
             else:
-                st.error("No disease matches found. Check your API Key or try a clearer image.")
+                st.error("No predictions returned. Check your API key setup.")
