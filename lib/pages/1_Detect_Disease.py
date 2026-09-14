@@ -1,31 +1,67 @@
-import os
-import requests
+import streamlit as st
+from streamlit_geolocation import streamlit_geolocation
+from lib.detect_disease import detect_disease
 
-# AI Model Inference API URL
-API_URL = "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
+st.set_page_config(page_title="Detect Disease · CropGuard", page_icon="🔍")
 
-def detect_disease(image_bytes: bytes, content_type: str = "image/jpeg"):
-    """
-    Leaf image bytes ko Hugging Face AI Model API par bhejta hai aur disease predict karta hai.
-    """
-    headers = {"Content-Type": content_type}
-    
-    hf_token = os.getenv("HUGGINGFACE_TOKEN")
-    if hf_token:
-        headers["Authorization"] = f"Bearer {hf_token}"
+st.title("🔍 Detect Crop Disease (Plant.id)")
+st.write("Upload a leaf photo for high-accuracy diagnosis and treatment recommendations.")
 
-    try:
-        response = requests.post(API_URL, headers=headers, data=image_bytes, timeout=15)
-        if response.status_code == 200:
-            predictions = response.json()
-            if isinstance(predictions, list):
-                return predictions
-    except Exception:
-        pass
+st.subheader("📍 Share location (optional)")
+st.caption("Location helps pinpoint local disease trends.")
+location = streamlit_geolocation()
 
-    # Fallback sample response (Agar API down ho ya network issue ho)
-    return [
-        {"label": "Tomato - Early Blight", "score": 0.88},
-        {"label": "Tomato - Late Blight", "score": 0.09},
-        {"label": "Healthy Leaf", "score": 0.03}
-    ]
+lat, lon = None, None
+if location and location.get("latitude"):
+    lat = location["latitude"]
+    lon = location["longitude"]
+    st.success(f"Location captured: {lat:.4f}, {lon:.4f}")
+
+uploaded_file = st.file_uploader("Leaf photo", type=["jpg", "jpeg", "png"])
+
+if uploaded_file is not None:
+    st.image(uploaded_file, caption="Uploaded leaf preview", use_container_width=True)
+
+    if st.button("Run Advanced Detection", type="primary"):
+        with st.spinner("Analyzing plant health via Plant.id..."):
+            image_bytes = uploaded_file.getvalue()
+            content_type = uploaded_file.type or "image/jpeg"
+            
+            predictions = detect_disease(image_bytes, content_type, latitude=lat, longitude=lon)
+
+            if predictions:
+                st.success("Diagnosis complete!")
+                st.markdown("### 📋 Primary Diagnosis Results")
+
+                for i, pred in enumerate(predictions):
+                    label = pred["label"]
+                    score = pred["score"] * 100
+
+                    with st.expander(f"**{i+1}. {label}** — `{score:.1f}% Match`", expanded=(i == 0)):
+                        st.progress(min(int(score), 100))
+                        st.write(f"**Description:** {pred['description']}")
+
+                        # Treatment Section
+                        st.markdown("#### 🛠️ Treatment Options")
+                        
+                        bio = pred.get("treatment_biological", [])
+                        chem = pred.get("treatment_chemical", [])
+                        prev = pred.get("prevention", [])
+
+                        if bio:
+                            st.markdown("**🌱 Biological Control:**")
+                            for b in bio:
+                                st.write(f"- {b}")
+                        if chem:
+                            st.markdown("**🧪 Chemical Treatments:**")
+                            for c in chem:
+                                st.write(f"- {c}")
+                        if prev:
+                            st.markdown("**🛡️ Prevention Strategy:**")
+                            for p in prev:
+                                st.write(f"- {p}")
+                        
+                        if not bio and not chem and not prev:
+                            st.info("No specific treatment protocol provided for this condition.")
+            else:
+                st.error("No disease matches found. Check your API Key or try a clearer image.")
