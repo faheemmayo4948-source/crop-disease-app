@@ -1,18 +1,20 @@
-import os
+import streamlit as st
 import requests
 
-# AI Model Inference API URL
 API_URL = "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
 
 def detect_disease(image_bytes: bytes, content_type: str = "image/jpeg"):
     """
-    Sends leaf image bytes to AI Model API and returns predictions.
+    Sends leaf image bytes to Hugging Face AI Model API using the secret token.
     """
     headers = {"Content-Type": content_type}
     
-    hf_token = os.getenv("HUGGINGFACE_TOKEN")
-    if hf_token:
+    # Secrets se token extract karna
+    try:
+        hf_token = st.secrets["HUGGINGFACE_TOKEN"]
         headers["Authorization"] = f"Bearer {hf_token}"
+    except Exception:
+        pass  # Token secrets mein na hone par unauthenticated request bhejega
 
     try:
         response = requests.post(API_URL, headers=headers, data=image_bytes, timeout=15)
@@ -23,7 +25,7 @@ def detect_disease(image_bytes: bytes, content_type: str = "image/jpeg"):
     except Exception:
         pass
 
-    # Fallback sample response (Agar API network issue ho)
+    # Fallback sample response (Agar API loading state mein ho)
     return [
         {"label": "Tomato - Early Blight", "score": 0.88},
         {"label": "Tomato - Late Blight", "score": 0.09},
