@@ -72,8 +72,8 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
-# Hero Image Header
-st.image("https://images.unsplash.com/photo-1592982537447-7440770cbfc9?q=80&w=1000&auto=format&fit=crop", use_container_width=True)
+# Custom Hero Banner Image
+st.image("https://i.postimg.cc/CRwgVtkZ/hero-banner-png.png", use_container_width=True)
 
 # Main Title & Subtitle
 st.markdown('<div class="app-title">🌱 CropGuard</div>', unsafe_allow_html=True)
