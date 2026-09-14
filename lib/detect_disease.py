@@ -1,26 +1,66 @@
-import requests
 import streamlit as st
+import pandas as pd
+from lib.weather_client import geocode_city, get_weather, assess_disease_risk
 
-MODEL_ID = "linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
-HF_ENDPOINT = f"https://router.huggingface.co/hf-inference/models/{MODEL_ID}"
+st.set_page_config(page_title="Disease Forecast · CropGuard", page_icon="🌤️")
 
+st.title("🌤️ Weather-Based Disease Risk")
+st.caption(
+    "This is a general risk indicator based on weather patterns and common agronomy "
+    "rules — not a certified prediction. Always consult a local agriculture expert "
+    "for serious cases."
+)
 
-def detect_disease(image_bytes, content_type="image/jpeg"):
-    token = st.secrets.get("hf_api_token")
-    if not token:
-        raise ValueError("Hugging Face token missing. Add hf_api_token in secrets.")
+st.subheader("📍 Step 1 — Enter your city or area")
+city_input = st.text_input("City name", placeholder="e.g. Multan, Faisalabad, Lahore")
 
-    response = requests.post(
-        HF_ENDPOINT,
-        headers={
-            "Authorization": f"Bearer {token}",
-            "Content-Type": content_type,
-        },
-        data=image_bytes,
-        timeout=30,
-    )
+if not city_input:
+    st.info("Type your city name above to get weather-based disease risk.")
+    st.stop()
 
-    if response.status_code != 200:
-        raise RuntimeError(f"Model request failed: {response.text}")
+with st.spinner("Finding location..."):
+    lat, lon, display_name = geocode_city(city_input)
 
-    return response.json()
+if lat is None:
+    st.error("Could not find that location. Try a different spelling or a nearby major city.")
+    st.stop()
+
+st.success(f"Location found: {display_name}")
+
+with st.spinner("Fetching weather..."):
+    try:
+        weather = get_weather(lat, lon)
+    except Exception as e:
+        st.error(f"Could not fetch weather: {e}")
+        st.stop()
+
+col1, col2, col3 = st.columns(3)
+col1.metric("Temperature", f"{weather['temperature_2m']}°C")
+col2.metric("Humidity", f"{weather['relative_humidity_2m']}%")
+col3.metric("Precipitation", f"{weather['precipitation']} mm")
+
+st.subheader("🌾 Step 2 — Select your crop")
+
+@st.cache_data
+def load_database():
+    return pd.read_csv("data/disease_database.csv")
+
+df = load_database()
+crop = st.selectbox("Crop", sorted(df["Crop"].unique().tolist()))
+
+st.subheader("⚠️ Risk Assessment")
+risks = assess_disease_risk(
+    weather["temperature_2m"], weather["relative_humidity_2m"], weather["precipitation"]
+)
+for disease_type, level, reason in risks:
+    color = {"High": "🔴", "Moderate to High": "🟠", "Moderate": "🟡", "Low": "🟢"}.get(level, "⚪")
+    st.markdown(f"{color} **{disease_type}** — Risk: *{level}*")
+    st.caption(reason)
+
+st.divider()
+st.subheader(f"📋 Common diseases to watch for in {crop}")
+crop_diseases = df[df["Crop"] == crop]
+for _, row in crop_diseases.iterrows():
+    with st.expander(row["Disease"]):
+        st.write(f"**Symptoms:** {row['Symptoms']}")
+        st.write(f"**Treatment:** {row['Treatment']}")
