@@ -1,6 +1,24 @@
 import requests
 
 
+def geocode_city(city_name):
+    """Convert a city/place name into latitude/longitude using free Open-Meteo geocoding."""
+    url = "https://geocoding-api.open-meteo.com/v1/search"
+    params = {"name": city_name, "count": 1, "language": "en", "format": "json"}
+    response = requests.get(url, params=params, timeout=15)
+    response.raise_for_status()
+    data = response.json()
+
+    if not data.get("results"):
+        return None, None, None
+
+    result = data["results"][0]
+    lat = result["latitude"]
+    lon = result["longitude"]
+    display_name = f"{result.get('name', city_name)}, {result.get('country', '')}"
+    return lat, lon, display_name
+
+
 def get_weather(lat, lon):
     """Fetch current weather using Open-Meteo (free, no API key needed)."""
     url = "https://api.open-meteo.com/v1/forecast"
