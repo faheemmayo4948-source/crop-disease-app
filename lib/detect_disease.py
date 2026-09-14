@@ -1,46 +1,40 @@
-import os
-import requests
+import streamlit as st
+from streamlit_geolocation import streamlit_geolocation
+from lib.detect_disease import detect_disease
 
-# Hugging Face Model API URL (Crop Disease Detection Model)
-API_URL = "https://api-inference.huggingface.co/models/linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
+st.set_page_config(page_title="Detect Disease · CropGuard", page_icon="🔍")
 
-def detect_disease(image_bytes: bytes, content_type: str = "image/jpeg"):
-    """
-    Sends leaf image bytes to the AI Model API and returns top predictions.
-    """
-    # Hugging Face API headers
-    headers = {
-        "Content-Type": content_type
-    }
-    
-    # Optional: Aggar aap ne secret key set ki hui hai
-    hf_token = os.getenv("HUGGINGFACE_TOKEN")
-    if hf_token:
-        headers["Authorization"] = f"Bearer {hf_token}"
+st.title("🔍 Detect a crop disease")
+st.write("Upload a photo of the affected leaf to get a likely diagnosis.")
 
-    try:
-        response = requests.post(API_URL, headers=headers, data=image_bytes, timeout=15)
-        
-        # Check HTTP Status
-        if response.status_code == 200:
-            predictions = response.json()
-            # Expecting a list of dicts: [{"label": "...", "score": 0.95}, ...]
-            if isinstance(predictions, list):
-                return predictions
-            else:
-                return [{"label": "Unknown Disease", "score": 0.0}]
-        else:
-            # Fallback mock data agar API limit exceed ho jaye ya load na ho
-            return [
-                {"label": "Tomato - Early Blight", "score": 0.88},
-                {"label": "Tomato - Late Blight", "score": 0.09},
-                {"label": "Healthy Leaf", "score": 0.03}
-            ]
+st.subheader("📍 Share your location (optional)")
+st.caption("Click the pin icon below and allow location access.")
+location = streamlit_geolocation()
 
-    except Exception as e:
-        # Emergency Fallback Mock Data
-        return [
-            {"label": "Leaf Spot / Rust Detected", "score": 0.85},
-            {"label": "Bacterial Blight", "score": 0.10},
-            {"label": "Healthy", "score": 0.05}
-        ]
+lat, lon = None, None
+if location and location.get("latitude"):
+    lat = location["latitude"]
+    lon = location["longitude"]
+    st.success(f"Location captured: {lat:.4f}, {lon:.4f}")
+
+uploaded_file = st.file_uploader("Leaf photo", type=["jpg", "jpeg", "png"])
+
+if uploaded_file is not None:
+    st.image(uploaded_file, caption="Uploaded leaf", use_container_width=True)
+
+    if st.button("Run detection", type="primary"):
+        with st.spinner("Analyzing..."):
+            try:
+                image_bytes = uploaded_file.getvalue()
+                content_type = uploaded_file.type or "image/jpeg"
+                predictions = detect_disease(image_bytes, content_type)
+
+                st.success("Diagnosis complete")
+                st.subheader("Likely diagnosis")
+                for pred in predictions[:3]:
+                    label = pred.get("label", "Unknown")
+                    score = pred.get("score", 0) * 100
+                    st.write(f"**{label}** — {score:.1f}%")
+                    st.progress(min(int(score), 100))
+            except Exception as e:
+                st.error(f"Detection failed: {e}")
