@@ -1,115 +1,49 @@
 import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
 
 import streamlit as st
-from PIL import Image
-from streamlit_geolocation import streamlit_geolocation
-from lib.detect_disease import detect_disease, generate_pdf_report, generate_audio_guide
+from lib.detect_disease import analyze_crop_image, generate_voice_note
 
 st.set_page_config(page_title="Detect Disease · CropGuard", page_icon="🔍", layout="centered")
 
-st.markdown("""
-<style>
-    .stApp { background-color: #F8FAFC; }
-    .block-container { padding-top: 1.5rem !important; max-width: 550px !important; }
-</style>
-""", unsafe_allow_html=True)
+st.title("🔍 AI Crop Health & Disease Diagnostic")
+st.write("Upload a clear photo of the infected crop leaf to identify diseases and receive instant treatment advice.")
 
-st.title("🔍 Detect Crop Disease")
-st.write("Upload a leaf photo for high-accuracy diagnosis, treatments, and localized spray recommendations.")
-
-lang = st.radio("🌐 Language / زبان:", ["English", "اردو (Urdu)"], horizontal=True)
-
-st.divider()
-
-if lang == "English":
-    st.subheader("📍 Share Location (Optional)")
-    st.caption("Location helps match local spray brands available in your area.")
-else:
-    st.subheader("📍 لوکیشن شیئر کریں (اختیاری)")
-    st.caption("لوکیشن سے آپ کے علاقے میں دستیاب مقامی اسپرے کی معلومات ملتی ہے۔")
-
-location = streamlit_geolocation()
-
-lat, lon = None, None
-if location and isinstance(location, dict) and location.get("latitude"):
-    lat = location["latitude"]
-    lon = location["longitude"]
-    st.success(f"✅ Location Captured: {lat:.4f}, {lon:.4f}")
-
-st.divider()
-
-uploaded_file = st.file_uploader("Upload Leaf Photo", type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Choose a leaf image (JPG/PNG):", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
-    img = Image.open(uploaded_file)
-    st.image(img, caption="Uploaded Leaf Preview")
-
-    btn_label = "Run Diagnostics & Spray Guide" if lang == "English" else "تشخیص اور اسپرے کی معلومات حاصل کریں"
+    st.image(uploaded_file, caption="Uploaded Crop Leaf Sample", use_container_width=True)
     
-    if st.button(btn_label, type="primary"):
-        with st.spinner("Analyzing plant health & finding local treatments..."):
+    if st.button("Run AI Diagnosis", type="primary"):
+        with st.spinner("Analyzing pathogen features via Plant.id API..."):
             image_bytes = uploaded_file.getvalue()
-            content_type = uploaded_file.type or "image/jpeg"
+            result = analyze_crop_image(image_bytes)
             
-            predictions = detect_disease(image_bytes, content_type, latitude=lat, longitude=lon)
-
-            if predictions:
-                st.success("Diagnosis Complete!" if lang == "English" else "تشخیص مکمل ہو گئی!")
-                st.divider()
-
-                top_pred = predictions[0]
-                pdf_file = generate_pdf_report(top_pred, lat=lat, lon=lon)
+            if result:
+                health_res = result.get("result", {}).get("disease", {})
+                suggestions = health_res.get("suggestions", [])
                 
-                # Audio Generation Text
-                if lang == "English":
-                    audio_text = f"Diagnosis complete. Issue detected is {top_pred['label']}. Recommended sprays are: {', '.join(top_pred.get('local_sprays', []))}."
-                    audio_bg = generate_audio_guide(audio_text, lang="en")
-                else:
-                    audio_text = f"تشخیص مکمل ہو گئی۔ فصل میں {top_pred['label']} کی تشخیص ہوئی ہے۔ تجویز کردہ اسپرے یہ ہیں: {', '.join(top_pred.get('local_sprays', []))}."
-                    audio_bg = generate_audio_guide(audio_text, lang="ur")
-
-                if audio_bg:
-                    st.markdown("🔊 **Listen to Diagnostic Audio / آواز میں سنیں:**")
-                    st.audio(audio_bg, format="audio/mp3")
-
-                st.download_button(
-                    label="📄 Download Official PDF Report" if lang == "English" else "📄 پی ڈی ایف رپورٹ ڈاؤن لوڈ کریں",
-                    data=pdf_file,
-                    file_name=f"CropGuard_Report_{top_pred['label'].replace(' ', '_')}.pdf",
-                    mime="application/pdf"
-                )
-                
-                st.divider()
-
-                for i, pred in enumerate(predictions):
-                    label = pred.get("label", "Crop Disease")
-                    score = pred.get("score", 0.0) * 100
-
-                    st.markdown(f"### {i+1}. {label} (`{score:.1f}% Match`)")
-                    st.progress(min(int(score), 100))
+                if suggestions:
+                    top_match = suggestions[0]
+                    disease_name = top_match.get("name", "Unknown Issue")
+                    probability = top_match.get("probability", 0.0) * 100
                     
-                    st.write(f"**Description:** {pred.get('description', 'N/A')}")
-
-                    st.markdown("#### 🎯 Recommended Chemical & Market Sprays" if lang == "English" else "#### 🎯 تجویز کردہ کیمیائی اسپرے")
-                    sprays = pred.get("local_sprays", [])
-                    for spray in sprays:
-                        st.write(f"👉 **{spray}**")
-
-                    bio = pred.get("biological", [])
-                    if bio:
-                        st.markdown("**🌱 Organic / Biological Control:**" if lang == "English" else "**🌱 حیاتیاتی علاج:**")
-                        for item in bio:
-                            st.write(f"- {item}")
-
-                    prev = pred.get("prevention", [])
-                    if prev:
-                        st.markdown("**🛡️ Preventive Protocol:**" if lang == "English" else "**🛡️ بچاؤ کی تدابیر:**")
-                        for item in prev:
-                            st.write(f"- {item}")
-
-                    st.divider()
-            else:
-                st.error("Diagnosis failed. Please check your API key or image clarity.")
+                    st.success(f"✅ Primary Diagnosis: **{disease_name}** ({probability:.1f}% confidence)")
+                    
+                    details = top_match.get("details", {})
+                    if "treatment" in details:
+                        st.subheader("💊 Recommended Treatment & Spray Protocol")
+                        st.write(details.get("treatment"))
+                    
+                    # Urdu Voice Note Generation
+                    voice_text = f"Fasal ki bemari ki tashkhees ho gayi hai. Bemari ka naam {disease_name} hai."
+                    audio_fp = generate_voice_note(voice_text, lang='ur')
+                    if audio_fp:
+                        st.subheader("🔊 Urdu Voice Guidance Note")
+                        st.audio(audio_fp, format="audio/mp3")
+                else:
+                    st.info("🌱 The plant appears healthy or no strong pathogen pattern was detected.")
