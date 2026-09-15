@@ -23,8 +23,11 @@ if uploaded_file is not None:
             image_bytes = uploaded_file.getvalue()
             matches = detect_disease(image_bytes)
             
-            if matches and len(matches) > 0:
-                top_match = matches[0]
+            # Filter matches to find valid disease diagnosis
+            valid_matches = [m for m in matches if m.get("probability", 0) > 1.0 and m.get("name") != "Unknown Issue"]
+            
+            if valid_matches:
+                top_match = valid_matches[0]
                 disease_name = top_match.get("name", "Unspecified Pathogen")
                 confidence = top_match.get("probability", 0.0)
                 
@@ -35,7 +38,8 @@ if uploaded_file is not None:
                     st.subheader("💊 Recommended Treatment & Spray Protocol")
                     if isinstance(treatment, dict):
                         for k, v in treatment.items():
-                            st.write(f"**{k.capitalize()}:** {v}")
+                            if v:
+                                st.write(f"**{k.capitalize()}:** {v}")
                     else:
                         st.write(str(treatment))
                 
@@ -46,4 +50,4 @@ if uploaded_file is not None:
                     st.subheader("🔊 Urdu Voice Guidance Note")
                     st.audio(audio_fp, format="audio/mp3")
             else:
-                st.info("🌱 Plant appears healthy or no strong pathogen pattern was detected.")
+                st.info("🌱 Plant appears healthy or leaf image requires a closer, clearer view of the infected spots.")
