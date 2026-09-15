@@ -1,68 +1,86 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import streamlit as st
 import pandas as pd
-from lib.firebase_client import get_db
+from lib.firebase_client import get_all_samples
 
-st.set_page_config(page_title="Gallery · CropGuard", page_icon="🔒", layout="wide")
+st.set_page_config(page_title="Admin Data Gallery · CropGuard", page_icon="🔒", layout="wide")
 
-# --- Password gate ---
-if "admin_authenticated" not in st.session_state:
-    st.session_state.admin_authenticated = False
+st.title("🔒 Admin Research & Data Gallery")
+st.write("Password-protected administration panel for reviewing farmer contributions and exporting research datasets.")
 
-if not st.session_state.admin_authenticated:
-    st.title("🔒 Admin Access Required")
-    password = st.text_input("Enter admin password", type="password")
-    if st.button("Unlock"):
-        if password == st.secrets.get("admin_password"):
-            st.session_state.admin_authenticated = True
-            st.rerun()
-        else:
-            st.error("Incorrect password.")
+# Password Authentication
+admin_pass = st.secrets.get("admin_password", "admin123")
+input_pass = st.text_input("Enter Admin Password:", type="password")
+
+if input_pass != admin_pass:
+    if input_pass:
+        st.error("❌ Incorrect Password.")
+    else:
+        st.info("🔑 Please enter the admin password configured in Streamlit Secrets.")
     st.stop()
 
-# --- Everything below is only visible after correct password ---
-st.title("🖼️ Contributed Samples (Private)")
-st.caption("This data is private — visible only to admins, never to public visitors.")
+st.success("✅ Admin Access Granted")
+st.divider()
 
-
-@st.cache_data(ttl=60)
-def load_samples():
-    db = get_db()
-    docs = db.collection("samples").stream()
-    return [doc.to_dict() for doc in docs]
-
-
-samples = load_samples()
+samples = get_all_samples()
 
 if not samples:
-    st.info("No samples contributed yet.")
+    st.warning("No dataset samples found in Firestore collection.")
 else:
     df = pd.DataFrame(samples)
-    st.caption(f"Total samples: {len(df)}")
 
-    crop_options = ["All crops"] + sorted(df["cropName"].dropna().unique().tolist())
-    crop_filter = st.selectbox("Filter by crop", crop_options)
-    filtered_df = df if crop_filter == "All crops" else df[df["cropName"] == crop_filter]
-
-    # CSV export for companies
-    csv = filtered_df.to_csv(index=False).encode("utf-8")
-    st.download_button(
-        "📥 Download as CSV (for company sharing)",
-        data=csv,
-        file_name="cropguard_samples.csv",
-        mime="text/csv",
-    )
+    st.subheader("📊 Dataset Overview")
+    col1, col2, col3 = st.columns(3)
+    col1.metric("Total Samples Collected", len(df))
+    
+    consent_count = df["consent_granted"].sum() if "consent_granted" in df.columns else len(df)
+    col2.metric("Consent Approved Samples", consent_count)
+    col3.metric("Unique Crops", df["crop_name"].nunique() if "crop_name" in df.columns else "N/A")
 
     st.divider()
 
-    cols = st.columns(3)
-    for i, row in filtered_df.reset_index(drop=True).iterrows():
-        with cols[i % 3]:
-            if pd.notna(row.get("imageUrl")):
-                st.image(row["imageUrl"], use_container_width=True)
-            st.markdown(f"**{row.get('cropName', 'Unknown')}**")
-            st.caption(row.get("diseaseLabel", "No label"))
-            st.divider()
+    # Consent Filter for Data Export / Monetization Compliance
+    only_consent = st.checkbox("Show ONLY samples with farmer consent (Recommended for Commercial/Research Export)", value=True)
 
-if st.button("🔒 Lock again"):
-    st.session_state.admin_authenticated = False
-    st.rerun()
+    export_df = df.copy()
+    if only_consent and "consent_granted" in export_df.columns:
+        export_df = export_df[export_df["consent_granted"] == True]
+
+    # CSV Export Button
+    csv_data = export_df.to_csv(index=False).encode('utf-8')
+    st.download_button(
+        label="📥 Export Filtered Dataset CSV (For Companies/Research)",
+        data=csv_data,
+        file_name="CropGuard_Consented_Research_Data.csv",
+        mime="text/csv",
+        type="primary"
+    )
+
+    st.divider()
+    st.subheader("🖼️ Sample Gallery View")
+
+    cols = st.columns(3)
+    for index, row in export_df.iterrows():
+        col_idx = index % 3
+        with cols[col_idx]:
+            img_url = row.get("image_url", "")
+            if img_url:
+                st.image(img_url, use_container_width=True)
+            
+            st.markdown(f"**Crop:** {row.get('crop_name', 'N/A')}")
+            st.markdown(f"**Disease:** {row.get('disease_name', 'N/A')}")
+            st.markdown(f"**Contributor:** {row.get('farmer_name', 'Anonymous')}")
+            
+            has_consent = row.get('consent_granted', False)
+            consent_badge = "✅ Consented" if has_consent else "❌ No Consent"
+            st.caption(f"Consent Status: **{consent_badge}** | Phone: {row.get('phone', 'N/A')}")
+            
+            lat = row.get('latitude')
+            lon = row.get('longitude')
+            if lat and lon:
+                st.caption(f"📍 GPS: {lat:.4f}, {lon:.4f}")
+            st.divider()
