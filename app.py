@@ -3,11 +3,11 @@ import streamlit as st
 import pandas as pd
 from PIL import Image
 
-# 1. Page Configuration (Responsive & Clean)
+# 1. Page Configuration (Responsive & Touch-Friendly)
 st.set_page_config(
     page_title="CropGuard - Smart Plant Health",
     page_icon="🌾",
-    layout="centered", # Touch devices par behtar dikhta hai
+    layout="centered",  # Touch devices par behtar dikhta hai
     initial_sidebar_state="collapsed"
 )
 
@@ -68,7 +68,7 @@ with tab1:
         
         # Large Touch Action Button
         if st.button("🔍 Check Bimari (Analyze)", type="primary"):
-            with st.spinner("Bimari ki ਜਾਂਚ ho rahi hai..."):
+            with st.spinner("Bimari ki jaanch ho rahi hai..."):
                 # Simulated detection logic
                 st.success("✅ Pehchan Mukammal!")
                 
