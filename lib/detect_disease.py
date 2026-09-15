@@ -9,7 +9,7 @@ def get_plant_id_api_key():
     return st.secrets.get("PLANT_ID_API_KEY", "xvkwB969s2vmuUinWlphpe4P4XKSAEUxvQ9hlcBtsWohj420rd")
 
 def analyze_crop_image(image_bytes, lang="ur"):
-    """Sends crop leaf image to Plant.id v3 API for high-accuracy disease diagnosis."""
+    """Sends crop leaf image to Plant.id v3 API for health assessment."""
     api_key = get_plant_id_api_key()
     if not api_key:
         st.error("⚠️ Plant.id API Key is missing in Streamlit Secrets.")
@@ -40,9 +40,44 @@ def analyze_crop_image(image_bytes, lang="ur"):
         st.error(f"Network error contacting Plant.id API: {e}")
         return None
 
-# Accept optional language parameter (*args and **kwargs included for safety)
+def parse_disease_results(api_response):
+    """
+    Safely parses Plant.id API response without slice syntax crashes.
+    Returns a list of clean disease match dictionaries.
+    """
+    if not api_response or not isinstance(api_response, dict):
+        return []
+
+    result = api_response.get("result", {})
+    disease = result.get("disease", {})
+    suggestions = disease.get("suggestions", [])
+
+    if not isinstance(suggestions, list):
+        return []
+
+    clean_suggestions = []
+    # Loop safely up to 3 items without slice errors
+    for item in suggestions[:3]:
+        if isinstance(item, dict):
+            name = item.get("name", "Unknown Disease")
+            prob = float(item.get("probability", 0.0)) * 100
+            details = item.get("details", {})
+            treatment = details.get("treatment", {}) if isinstance(details, dict) else {}
+            
+            clean_suggestions.append({
+                "name": name,
+                "probability": prob,
+                "treatment": treatment
+            })
+
+    return clean_suggestions
+
 def detect_disease(image_bytes, lang="ur", *args, **kwargs):
-    return analyze_crop_image(image_bytes, lang=lang)
+    """Main detection entry point"""
+    raw_response = analyze_crop_image(image_bytes, lang=lang)
+    if raw_response:
+        return parse_disease_results(raw_response)
+    return []
 
 def generate_voice_note(text, lang='ur'):
     """Generates Urdu/English voice note using gTTS"""
