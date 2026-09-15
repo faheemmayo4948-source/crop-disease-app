@@ -1,21 +1,10 @@
 import streamlit as st
-from streamlit_geolocation import streamlit_geolocation
 from lib.detect_disease import detect_disease
 
 st.set_page_config(page_title="Detect Disease · CropGuard", page_icon="🔍")
 
 st.title("🔍 Detect a crop disease")
 st.write("Upload a photo of the affected leaf to get a likely diagnosis.")
-
-st.subheader("📍 Share your location (optional)")
-st.caption("Click the pin icon below and allow location access in your browser.")
-location = streamlit_geolocation()
-
-lat, lon = None, None
-if location and location.get("latitude"):
-    lat = location["latitude"]
-    lon = location["longitude"]
-    st.success(f"Location captured: {lat:.4f}, {lon:.4f}")
 
 uploaded_file = st.file_uploader("Leaf photo", type=["jpg", "jpeg", "png"])
 
