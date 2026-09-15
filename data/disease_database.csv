@@ -1,10 +1,52 @@
-Crop,Disease,ScientificName,Symptoms,Treatment,Region
-Wheat,Leaf Rust,Puccinia triticina,Orange-brown pustules on upper leaf surface,Propiconazole 25% EC @ 1ml/L water,South Asia
-Wheat,Powdery Mildew,Blumeria graminis,White powdery fungal growth on leaves and stems,Wettable Sulfur 80% WDG @ 3g/L water,Global
-Rice,Bacterial Leaf Blight,Xanthomonas oryzae,Water-soaked lesions turning yellow/white along leaf margins,Streptocycline @ 0.5g / 10L water,South Asia
-Rice,Rice Blast,Magnaporthe oryzae,Diamond-shaped lesions with gray centers on leaves,Tricyclazole 75% WP @ 0.6g/L water,Asia
-Cotton,Cotton Leaf Curl Virus,CLCuV,Upward leaf curling and thickened veins,Control whitefly vector using Imidacloprid 17.8% SL,Pakistan / India
-Cotton,Bacterial Blight,Xanthomonas citri,Angular water-soaked spots on leaves and bolls,Copper Oxychloride 50% WP @ 2.5g/L water,Global
-Maize,Maydis Leaf Blight,Bipolaris maydis,Elongated tan lesions between leaf veins,Mancozeb 75% WP @ 2g/L water,Global
-Potato,Late Blight,Phytophthora infestans,Dark water-soaked lesions with white mold on underside,Metalaxyl + Mancozeb @ 2g/L water,Global
-Tomato,Early Blight,Alternaria solani,Concentric dark rings (target spots) on lower leaves,Chlorothalonil or Mancozeb @ 2g/L water,Global
+import sys
+import os
+import pandas as pd
+import streamlit as st
+
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
+
+st.set_page_config(page_title="Disease Database · CropGuard", page_icon="📚", layout="wide")
+
+st.title("📚 Crop Disease Knowledge Base")
+st.write("Browse common crop diseases, early symptoms, and organic/chemical remedies.")
+
+@st.cache_data
+def load_database():
+    csv_path = os.path.join(ROOT_DIR, "data", "disease_database.csv")
+    try:
+        # on_bad_lines='skip' ensures malformed lines won't crash Pandas
+        return pd.read_csv(csv_path, on_bad_lines='skip', engine='python')
+    except Exception:
+        # Fallback dataset in case CSV file is corrupted or missing
+        return pd.DataFrame([
+            {
+                "Crop": "Wheat",
+                "Disease": "Leaf Rust",
+                "Symptoms": "Reddish-orange pustules on leaf surface",
+                "Treatment": "Spray Propiconazole or Copper Fungicide"
+            },
+            {
+                "Crop": "Cotton",
+                "Disease": "Leaf Curl Virus",
+                "Symptoms": "Upward curling of leaves and thickened veins",
+                "Treatment": "Control whitefly vector using Imidacloprid"
+            },
+            {
+                "Crop": "Rice",
+                "Disease": "Bacterial Leaf Blight",
+                "Symptoms": "Water-soaked lesions turning yellow-white streaks",
+                "Treatment": "Apply Copper Oxychloride + Streptocycline"
+            }
+        ])
+
+df = load_database()
+
+search_query = st.text_input("🔍 Search disease or crop name:", "")
+
+if search_query:
+    filtered_df = df[df.apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)]
+    st.dataframe(filtered_df, use_container_width=True)
+else:
+    st.dataframe(df, use_container_width=True)
