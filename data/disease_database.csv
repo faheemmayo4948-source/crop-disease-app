@@ -1,0 +1,10 @@
+Crop,Disease,ScientificName,Symptoms,Treatment,Region
+Wheat,Leaf Rust,Puccinia triticina,Orange-brown pustules on upper leaf surface,Propiconazole 25% EC @ 1ml/L water,South Asia
+Wheat,Powdery Mildew,Blumeria graminis,White powdery fungal growth on leaves and stems,Wettable Sulfur 80% WDG @ 3g/L water,Global
+Rice,Bacterial Leaf Blight,Xanthomonas oryzae,Water-soaked lesions turning yellow/white along leaf margins,Streptocycline @ 0.5g / 10L water,South Asia
+Rice,Rice Blast,Magnaporthe oryzae,Diamond-shaped lesions with gray centers on leaves,Tricyclazole 75% WP @ 0.6g/L water,Asia
+Cotton,Cotton Leaf Curl Virus,CLCuV,Upward leaf curling and thickened veins,Control whitefly vector using Imidacloprid 17.8% SL,Pakistan / India
+Cotton,Bacterial Blight,Xanthomonas citri,Angular water-soaked spots on leaves and bolls,Copper Oxychloride 50% WP @ 2.5g/L water,Global
+Maize,Maydis Leaf Blight,Bipolaris maydis,Elongated tan lesions between leaf veins,Mancozeb 75% WP @ 2g/L water,Global
+Potato,Late Blight,Phytophthora infestans,Dark water-soaked lesions with white mold on underside,Metalaxyl + Mancozeb @ 2g/L water,Global
+Tomato,Early Blight,Alternaria solani,Concentric dark rings (target spots) on lower leaves,Chlorothalonil or Mancozeb @ 2g/L water,Global
