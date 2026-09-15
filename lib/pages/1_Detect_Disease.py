@@ -6,7 +6,7 @@ if ROOT_DIR not in sys.path:
     sys.path.insert(0, ROOT_DIR)
 
 import streamlit as st
-from lib.detect_disease import analyze_crop_image, generate_voice_note
+from lib.detect_disease import detect_disease, generate_voice_note
 
 st.set_page_config(page_title="Detect Disease · CropGuard", page_icon="🔍", layout="centered")
 
@@ -21,7 +21,7 @@ if uploaded_file is not None:
     if st.button("Run AI Diagnosis", type="primary"):
         with st.spinner("Analyzing pathogen features via Plant.id API..."):
             image_bytes = uploaded_file.getvalue()
-            result = analyze_crop_image(image_bytes)
+            result = detect_disease(image_bytes)
             
             if result:
                 health_res = result.get("result", {}).get("disease", {})
@@ -39,7 +39,7 @@ if uploaded_file is not None:
                         st.subheader("💊 Recommended Treatment & Spray Protocol")
                         st.write(details.get("treatment"))
                     
-                    # Urdu Voice Note Generation
+                    # Urdu Voice Note
                     voice_text = f"Fasal ki bemari ki tashkhees ho gayi hai. Bemari ka naam {disease_name} hai."
                     audio_fp = generate_voice_note(voice_text, lang='ur')
                     if audio_fp:
