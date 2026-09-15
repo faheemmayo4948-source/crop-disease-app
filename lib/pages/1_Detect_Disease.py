@@ -23,11 +23,8 @@ if uploaded_file is not None:
             image_bytes = uploaded_file.getvalue()
             matches = detect_disease(image_bytes)
             
-            # Filter matches to find valid disease diagnosis
-            valid_matches = [m for m in matches if m.get("probability", 0) > 1.0 and m.get("name") != "Unknown Issue"]
-            
-            if valid_matches:
-                top_match = valid_matches[0]
+            if matches and len(matches) > 0:
+                top_match = matches[0]
                 disease_name = top_match.get("name", "Unspecified Pathogen")
                 confidence = top_match.get("probability", 0.0)
                 
