@@ -2,23 +2,55 @@ import streamlit as st
 
 st.set_page_config(page_title="CropGuard", page_icon="🌾", layout="centered")
 
+# Enhanced Custom CSS with Styled Page Links & Hover Effects
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
     html, body, [class*="css"] { font-family: 'Poppins', sans-serif; }
+    
+    /* Global Primary Buttons */
     .stButton > button {
         border-radius: 8px; border: none; background-color: #1F7A4D;
         color: white; font-weight: 600; padding: 0.5rem 1.5rem;
         transition: all 0.2s ease;
     }
-    .stButton > button:hover { background-color: #16532F; transform: translateY(-1px); }
+    .stButton > button:hover { 
+        background-color: #16532F; 
+        transform: translateY(-2px); 
+        box-shadow: 0px 4px 10px rgba(22, 83, 47, 0.25);
+    }
+    
     h1, h2, h3 { color: #16532F; }
+    
+    /* Metrics Styling */
     [data-testid="stMetric"] {
         background-color: #EDF3ED; border-radius: 10px;
         padding: 1rem; border: 1px solid #D4E4D8;
     }
+    
+    /* Navigation Page Links Base Style */
     [data-testid="stPageLink"] {
-        border-radius: 8px; background-color: #EDF3ED; padding: 0.3rem 0.8rem;
+        border-radius: 10px;
+        background-color: #EDF3ED;
+        padding: 0.5rem 0.8rem;
+        border: 1px solid #D4E4D8;
+        box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.05);
+        transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    /* Navigation Page Links Hover Effect */
+    [data-testid="stPageLink"]:hover {
+        background-color: #FFFFFF;
+        border-color: #1F7A4D;
+        transform: translateY(-3px);
+        box-shadow: 0px 6px 15px rgba(31, 122, 77, 0.18);
+    }
+    
+    /* Page Link Text Styling Inside */
+    [data-testid="stPageLink"] a {
+        font-weight: 600;
+        color: #16532F !important;
+        text-decoration: none;
     }
 </style>
 """, unsafe_allow_html=True)
