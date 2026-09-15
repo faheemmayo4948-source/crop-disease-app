@@ -1,6 +1,5 @@
 import time
 import streamlit as st
-from streamlit_geolocation import streamlit_geolocation
 from lib.cloudinary_client import upload_image
 from lib.firebase_client import save_sample
 
@@ -15,18 +14,6 @@ if "user" not in st.session_state or not st.session_state.user:
 
 st.write(f"Contributing as: **{st.session_state.user['email']}**")
 st.write("Help grow the dataset used for research and future model training.")
-
-st.subheader("📍 Share your location")
-st.caption("Click the pin icon and allow location access — this helps identify where crop diseases occur.")
-location = streamlit_geolocation()
-
-lat, lon = None, None
-if location and location.get("latitude"):
-    lat = location["latitude"]
-    lon = location["longitude"]
-    st.success(f"Location captured: {lat:.4f}, {lon:.4f}")
-else:
-    st.caption("Location not shared yet.")
 
 crop_name = st.text_input("Crop name", placeholder="e.g. Rice, Wheat, Tomato")
 disease_label = st.text_input("Disease label", placeholder="e.g. Bacterial Leaf Blight")
@@ -51,8 +38,6 @@ if st.button("Submit sample", type="primary"):
                     image_url,
                     farmer_uid=st.session_state.user["uid"],
                     farmer_email=st.session_state.user["email"],
-                    latitude=lat,
-                    longitude=lon,
                 )
 
                 st.success("Thank you — your sample has been added.")
