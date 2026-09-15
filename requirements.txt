@@ -1,9 +1,8 @@
-streamlit
-streamlit-geolocation
-requests
-pillow
-reportlab
-cloudinary
-firebase-admin
-pandas
-gTTS
+streamlit>=1.28.0
+pandas>=2.0.0
+requests>=2.31.0
+google-generativeai>=0.3.0
+firebase-admin>=6.2.0
+gTTS>=2.3.2
+fpdf2>=2.7.5
+pillow>=10.0.0
