@@ -2,7 +2,7 @@ import streamlit as st
 
 st.set_page_config(page_title="CropGuard", page_icon="🌾", layout="centered")
 
-# Enhanced Custom CSS with Styled Page Links & Hover Effects
+# Enhanced Custom CSS with Feature Cards Styling
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
@@ -52,6 +52,33 @@ st.markdown("""
         color: #16532F !important;
         text-decoration: none;
     }
+
+    /* Custom Feature Cards Styling */
+    .feature-card {
+        background-color: #F8FAF8;
+        border: 1px solid #D4E4D8;
+        border-radius: 12px;
+        padding: 1.2rem;
+        height: 100%;
+        box-shadow: 0px 3px 8px rgba(0, 0, 0, 0.04);
+        transition: all 0.25s ease;
+    }
+    .feature-card:hover {
+        border-color: #1F7A4D;
+        transform: translateY(-2px);
+        box-shadow: 0px 6px 14px rgba(31, 122, 77, 0.12);
+    }
+    .feature-card h4 {
+        color: #16532F;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+    }
+    .feature-card p {
+        color: #4A5568;
+        font-size: 0.88rem;
+        margin-bottom: 0;
+        line-height: 1.4;
+    }
 </style>
 """, unsafe_allow_html=True)
 
@@ -95,16 +122,38 @@ with col5:
 
 st.divider()
 
+# Styled Feature Cards Columns
 c1, c2, c3 = st.columns(3)
 with c1:
-    st.markdown("**For farmers**")
-    st.caption("Take a photo of a sick leaf and get a likely diagnosis in seconds.")
+    st.markdown(
+        """
+        <div class="feature-card">
+            <h4>🚜 For farmers</h4>
+            <p>Take a photo of a sick leaf and get a likely diagnosis in seconds.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 with c2:
-    st.markdown("**For researchers**")
-    st.caption("Access a growing, labeled dataset of crop images from real fields.")
+    st.markdown(
+        """
+        <div class="feature-card">
+            <h4>🔬 For researchers</h4>
+            <p>Access a growing, labeled dataset of crop images from real fields.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 with c3:
-    st.markdown("**For the data**")
-    st.caption("Every contribution builds a global picture of crop health over time.")
+    st.markdown(
+        """
+        <div class="feature-card">
+            <h4>📊 For the data</h4>
+            <p>Every contribution builds a global picture of crop health over time.</p>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
 
 st.divider()
 st.subheader("📢 Doston ko share karen")
