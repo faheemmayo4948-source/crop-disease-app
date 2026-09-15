@@ -2,7 +2,7 @@ Crop,Disease,ScientificName,Symptoms,Treatment,Region
 Rice,Rice Blast,Magnaporthe oryzae,Diamond-shaped grey lesions with brown margins on leaves; neck rot,Use resistant varieties; apply tricyclazole or azoxystrobin fungicide; avoid excess nitrogen,Worldwide
 Rice,Bacterial Leaf Blight,Xanthomonas oryzae,Water-soaked stripes on leaf margins turning yellow to white,Use resistant varieties; copper-based bactericides; avoid flood irrigation during outbreaks,Asia
 Rice,Sheath Blight,Rhizoctonia solani,Oval greenish-grey lesions on leaf sheath near water line,Fungicide (hexaconazole); wider plant spacing; balanced fertilization,Worldwide
-Rice,Bakanae Disease,Fusarium fuseikuroi,Abnormally tall, thin, pale yellow seedlings,Seed treatment with fungicide; use certified disease-free seed,Asia
+Rice,Bakanae Disease,Fusarium fuseikuroi,Abnormally tall; thin; pale yellow seedlings,Seed treatment with fungicide; use certified disease-free seed,Asia
 Rice,Tungro Virus,Rice tungro bacilliform virus,Yellow-orange leaf discoloration; stunted growth,Control leafhopper vector; resistant varieties,Asia
 Wheat,Wheat Rust (Stem),Puccinia graminis,Reddish-brown pustules on stems and leaves,Resistant varieties; triazole fungicides,Worldwide
 Wheat,Wheat Rust (Yellow/Stripe),Puccinia striiformis,Yellow stripes of pustules along leaf veins,Resistant varieties; propiconazole spray,Worldwide
@@ -20,8 +20,8 @@ Sugarcane,Ratoon Stunting Disease,Leifsonia xyli,Stunted growth; reduced yield w
 Maize (Corn),Northern Corn Leaf Blight,Exserohilum turcicum,Long grey-green cigar-shaped lesions on leaves,Resistant hybrids; fungicide if severe,Worldwide
 Maize (Corn),Common Rust,Puccinia sorghi,Small reddish-brown pustules on both leaf surfaces,Resistant hybrids; fungicide,Worldwide
 Maize (Corn),Maize Streak Virus,Mastrevirus,Yellow streaks parallel to leaf veins; stunting,Control leafhopper vector; resistant varieties,Africa
-Maize (Corn),Downy Mildew,Peronosclerospora spp.,Chlorotic streaking; stunted, bushy growth,Resistant varieties; seed treatment with metalaxyl,Asia
-Potato,Late Blight,Phytophthora infestans,Dark water-soaked lesions on leaves; white mold on underside,Fungicide (metalaxyl, mancozeb); resistant varieties,Worldwide
+Maize (Corn),Downy Mildew,Peronosclerospora spp.,Chlorotic streaking; stunted; bushy growth,Resistant varieties; seed treatment with metalaxyl,Asia
+Potato,Late Blight,Phytophthora infestans,Dark water-soaked lesions on leaves; white mold on underside,"Fungicide (metalaxyl, mancozeb); resistant varieties",Worldwide
 Potato,Early Blight,Alternaria solani,Brown concentric ring spots on older leaves,Fungicide rotation; crop rotation,Worldwide
 Potato,Potato Virus Y,Potyvirus,Mosaic mottling; leaf crinkling; stunted plants,Certified virus-free seed tubers; control aphid vectors,Worldwide
 Potato,Common Scab,Streptomyces scabies,Rough corky lesions on tuber surface,Maintain soil pH below 5.5; avoid excess lime,Worldwide
@@ -33,19 +33,19 @@ Tomato,Tomato Yellow Leaf Curl Virus,Begomovirus,Upward leaf curling; yellowing;
 Tomato,Fusarium Wilt,Fusarium oxysporum f. sp. lycopersici,One-sided wilting; yellowing of lower leaves,Resistant varieties; soil solarization,Worldwide
 Tomato,Septoria Leaf Spot,Septoria lycopersici,Small circular spots with dark margins and grey centers,Fungicide; remove infected debris,Worldwide
 Grape,Downy Mildew,Plasmopara viticola,Yellow oily spots on upper leaf surface; white growth underside,Copper-based fungicide; canopy management,Worldwide
-Grape,Powdery Mildew,Erysiphe necator,White powdery coating on leaves, shoots, and fruit,Sulfur spray; resistant varieties,Worldwide
+Grape,Powdery Mildew,Erysiphe necator,White powdery coating on leaves; shoots; and fruit,Sulfur spray; resistant varieties,Worldwide
 Grape,Black Rot,Guignardia bidwellii,Brown circular lesions on leaves; shriveled black fruit,Fungicide; remove mummified berries,Worldwide
 Apple,Apple Scab,Venturia inaequalis,Olive-green to black velvety spots on leaves and fruit,Fungicide spray; resistant varieties,Worldwide
 Apple,Fire Blight,Erwinia amylovora,Blackened shoots with a scorched appearance,Prune infected wood; copper spray; resistant varieties,Worldwide
 Apple,Cedar Apple Rust,Gymnosporangium juniperi-virginianae,Bright orange-yellow spots on leaves,Remove nearby cedar trees; fungicide,North America
 Banana,Panama Disease (Fusarium Wilt),Fusarium oxysporum f. sp. cubense,Yellowing of older leaves; internal stem discoloration,Resistant varieties (e.g. Cavendish alternatives); field sanitation,Worldwide
 Banana,Black Sigatoka,Pseudocercospora fijiensis,Dark streaks on leaves merging into necrotic patches,Fungicide rotation; resistant varieties,Worldwide
-Banana,Bunchy Top Virus,Banana bunchy top virus,Stunted, bunched leaves at top; dark green streaks,Remove infected plants; control aphid vector,Worldwide
+Banana,Bunchy Top Virus,Banana bunchy top virus,Stunted; bunched leaves at top; dark green streaks,Remove infected plants; control aphid vector,Worldwide
 Citrus,Citrus Greening (HLB),Candidatus Liberibacter spp.,Blotchy yellow mottling; misshapen bitter fruit,Remove infected trees; control psyllid vector,Worldwide
 Citrus,Citrus Canker,Xanthomonas citri,Raised corky lesions with yellow halo on leaves and fruit,Copper spray; remove infected material,Worldwide
-Mango,Anthracnose,Colletotrichum gloeosporioides,Black sunken spots on leaves, flowers, and fruit,Fungicide spray; prune for air circulation,Worldwide
+Mango,Anthracnose,Colletotrichum gloeosporioides,Black sunken spots on leaves; flowers; and fruit,Fungicide spray; prune for air circulation,Worldwide
 Mango,Powdery Mildew,Oidium mangiferae,White powdery growth on flowers and young leaves,Sulfur-based fungicide,Worldwide
-Chickpea,Ascochyta Blight,Ascochyta rabiei,Concentric brown lesions on leaves, stems, and pods,Resistant varieties; fungicide seed treatment,Worldwide
+Chickpea,Ascochyta Blight,Ascochyta rabiei,Concentric brown lesions on leaves; stems; and pods,Resistant varieties; fungicide seed treatment,Worldwide
 Chickpea,Fusarium Wilt,Fusarium oxysporum f. sp. ciceris,Sudden wilting; vascular browning in stem,Resistant varieties; crop rotation,Worldwide
 Soybean,Soybean Rust,Phakopsora pachyrhizi,Small reddish-brown pustules on leaf underside,Fungicide (triazole/strobilurin); resistant varieties,Worldwide
 Soybean,Bacterial Blight,Pseudomonas savastanoi pv. glycinea,Angular water-soaked spots turning brown with yellow halo,Resistant varieties; crop rotation,Worldwide
@@ -70,7 +70,7 @@ Sorghum,Grain Mold,Fusarium spp. and others,Discoloration and molding of grain h
 Cucumber,Downy Mildew,Pseudoperonospora cubensis,Yellow angular spots bound by veins; grey mold underside,Fungicide spray; resistant varieties,Worldwide
 Cucumber,Powdery Mildew,Podosphaera xanthii,White powdery coating on leaves,Sulfur spray; resistant varieties,Worldwide
 Cabbage,Black Rot,Xanthomonas campestris,V-shaped yellow lesions from leaf margin,Certified seed; crop rotation,Worldwide
-Cabbage,Clubroot,Plasmodiophora brassicae,Swollen, distorted roots; stunted wilting plants,Soil pH adjustment (lime); resistant varieties,Worldwide
+Cabbage,Clubroot,Plasmodiophora brassicae,Swollen; distorted roots; stunted wilting plants,Soil pH adjustment (lime); resistant varieties,Worldwide
 Strawberry,Grey Mold (Botrytis),Botrytis cinerea,Grey fuzzy mold on fruit and flowers,Fungicide spray; good air circulation,Worldwide
 Strawberry,Leaf Scorch,Diplocarpon earlianum,Small purple spots merging into scorched appearance,Fungicide; remove infected leaves,Worldwide
 Tea,Blister Blight,Exobasidium vexans,Translucent blister-like spots on young leaves,Fungicide spray; proper pruning,Asia
