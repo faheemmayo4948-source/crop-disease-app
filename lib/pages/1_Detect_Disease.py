@@ -21,29 +21,29 @@ if uploaded_file is not None:
     if st.button("Run AI Diagnosis", type="primary"):
         with st.spinner("Analyzing pathogen features via Plant.id API..."):
             image_bytes = uploaded_file.getvalue()
-            result = detect_disease(image_bytes)
+            matches = detect_disease(image_bytes)
             
-            if result:
-                health_res = result.get("result", {}).get("disease", {})
-                suggestions = health_res.get("suggestions", [])
+            if matches and len(matches) > 0:
+                top_match = matches[0]
+                disease_name = top_match.get("name", "Unspecified Pathogen")
+                confidence = top_match.get("probability", 0.0)
                 
-                if suggestions:
-                    top_match = suggestions[0]
-                    disease_name = top_match.get("name", "Unknown Issue")
-                    probability = top_match.get("probability", 0.0) * 100
-                    
-                    st.success(f"✅ Primary Diagnosis: **{disease_name}** ({probability:.1f}% confidence)")
-                    
-                    details = top_match.get("details", {})
-                    if "treatment" in details:
-                        st.subheader("💊 Recommended Treatment & Spray Protocol")
-                        st.write(details.get("treatment"))
-                    
-                    # Urdu Voice Note
-                    voice_text = f"Fasal ki bemari ki tashkhees ho gayi hai. Bemari ka naam {disease_name} hai."
-                    audio_fp = generate_voice_note(voice_text, lang='ur')
-                    if audio_fp:
-                        st.subheader("🔊 Urdu Voice Guidance Note")
-                        st.audio(audio_fp, format="audio/mp3")
-                else:
-                    st.info("🌱 The plant appears healthy or no strong pathogen pattern was detected.")
+                st.success(f"✅ Primary Diagnosis: **{disease_name}** ({confidence:.1f}% confidence)")
+                
+                treatment = top_match.get("treatment")
+                if treatment:
+                    st.subheader("💊 Recommended Treatment & Spray Protocol")
+                    if isinstance(treatment, dict):
+                        for k, v in treatment.items():
+                            st.write(f"**{k.capitalize()}:** {v}")
+                    else:
+                        st.write(str(treatment))
+                
+                # Urdu Voice Note Generation
+                voice_text = f"Fasal ki bemari ki tashkhees ho gayi hai. Bemari ka naam {disease_name} hai."
+                audio_fp = generate_voice_note(voice_text, lang='ur')
+                if audio_fp:
+                    st.subheader("🔊 Urdu Voice Guidance Note")
+                    st.audio(audio_fp, format="audio/mp3")
+            else:
+                st.info("🌱 Plant appears healthy or no strong pathogen pattern was detected.")
