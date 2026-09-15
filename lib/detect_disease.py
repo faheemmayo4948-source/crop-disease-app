@@ -8,7 +8,7 @@ import io
 def get_plant_id_api_key():
     return st.secrets.get("PLANT_ID_API_KEY", "xvkwB969s2vmuUinWlphpe4P4XKSAEUxvQ9hlcBtsWohj420rd")
 
-def analyze_crop_image(image_bytes):
+def analyze_crop_image(image_bytes, lang="ur"):
     """Sends crop leaf image to Plant.id v3 API for high-accuracy disease diagnosis."""
     api_key = get_plant_id_api_key()
     if not api_key:
@@ -40,9 +40,9 @@ def analyze_crop_image(image_bytes):
         st.error(f"Network error contacting Plant.id API: {e}")
         return None
 
-# Alias function to fix ImportError
-def detect_disease(image_bytes):
-    return analyze_crop_image(image_bytes)
+# Accept optional language parameter (*args and **kwargs included for safety)
+def detect_disease(image_bytes, lang="ur", *args, **kwargs):
+    return analyze_crop_image(image_bytes, lang=lang)
 
 def generate_voice_note(text, lang='ur'):
     """Generates Urdu/English voice note using gTTS"""
