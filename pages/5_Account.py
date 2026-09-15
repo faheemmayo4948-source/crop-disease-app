@@ -1,10 +1,18 @@
 import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Root directory path safety
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
 
 import streamlit as st
-from lib.auth_client import login_user, signup_user
+
+try:
+    from lib.auth_client import login_user, signup_user
+except ModuleNotFoundError:
+    st.error("⚠️ Could not import `lib.auth_client`. Please verify `lib/auth_client.py` exists in your GitHub repository.")
+    st.stop()
 
 st.set_page_config(page_title="Farmer Account · CropGuard", page_icon="👤", layout="centered")
 
@@ -35,8 +43,6 @@ else:
                         st.session_state.user = user_data
                         st.success("Login successful!")
                         st.rerun()
-                    else:
-                        st.error("Invalid email or password.")
 
     with tab2:
         st.subheader("Create a New Farmer Account")
@@ -53,5 +59,3 @@ else:
                     res = signup_user(signup_email, signup_pass)
                     if res:
                         st.success("Account created successfully! You can now log in.")
-                    else:
-                        st.error("Signup failed. Email might already be in use.")
