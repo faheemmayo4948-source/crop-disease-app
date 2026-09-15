@@ -9,7 +9,7 @@ def get_plant_id_api_key():
     return st.secrets.get("PLANT_ID_API_KEY", "xvkwB969s2vmuUinWlphpe4P4XKSAEUxvQ9hlcBtsWohj420rd")
 
 def analyze_crop_image(image_bytes, lang="ur"):
-    """Sends crop leaf image to Plant.id v3 API with disease health assessment enabled."""
+    """Sends crop leaf image to Plant.id v3 API with valid API modifiers."""
     api_key = get_plant_id_api_key()
     if not api_key:
         st.error("⚠️ Plant.id API Key is missing in Streamlit Secrets.")
@@ -22,12 +22,15 @@ def analyze_crop_image(image_bytes, lang="ur"):
         "Api-Key": api_key,
         "Content-Type": "application/json"
     }
+    
+    # Valid Plant.id v3 payload parameters
     payload = {
         "images": [f"data:image/jpeg;base64,{encoded_image}"],
         "latitude": 31.5204,
         "longitude": 74.3587,
         "health": "all",
-        "disease_details": ["cause", "common_names", "description", "treatment"]
+        "disease_model": "full",
+        "similar_images": True
     }
 
     try:
@@ -42,7 +45,7 @@ def analyze_crop_image(image_bytes, lang="ur"):
         return None
 
 def parse_disease_results(api_response):
-    """Deep parses Plant.id v3 health assessment API response."""
+    """Safely extracts disease suggestions and confidence scores from API output."""
     if not api_response or not isinstance(api_response, dict):
         return []
 
@@ -50,8 +53,8 @@ def parse_disease_results(api_response):
     disease = result.get("disease", {})
     suggestions = disease.get("suggestions", [])
 
-    # Fallback to health_assessment suggestions if disease section is empty
     if not suggestions:
+        # Fallback to health_assessment object if nested differently
         health_assessment = result.get("health_assessment", {})
         suggestions = health_assessment.get("diseases", [])
 
