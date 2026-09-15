@@ -26,6 +26,10 @@ st.markdown("""
 st.title("🌾 CropGuard")
 st.subheader("Spot crop disease early, before it spreads across the field.")
 
+# Hero Banner Image Integration
+hero_banner_url = "https://i.postimg.cc/s1BkM74n/hero-banner-png.png"
+st.image(hero_banner_url, use_container_width=True)
+
 st.write(
     """
     Upload a photo of an affected leaf and get an instant diagnosis.
