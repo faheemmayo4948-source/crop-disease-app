@@ -1,61 +1,42 @@
+import sys
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
 import streamlit as st
-import pandas as pd
-from lib.weather_client import get_weather, assess_disease_risk
-from lib.location_client import get_location_widget, read_location_from_query
+from lib.weather_client import get_weather_forecast
 
-st.set_page_config(page_title="Disease Forecast · CropGuard", page_icon="🌤️")
+st.set_page_config(page_title="Disease Forecast · CropGuard", page_icon="🌤️", layout="centered")
 
-st.title("🌤️ Weather-Based Disease Risk")
-st.caption(
-    "This is a general risk indicator based on weather patterns and common agronomy "
-    "rules — not a certified prediction. Always consult a local agriculture expert "
-    "for serious cases."
-)
+st.title("🌤️ Weather & Disease Risk Forecast")
+st.write("Enter your city name to fetch live weather analytics and rule-based fungal/bacterial outbreak risk warnings.")
 
-st.subheader("📍 Step 1 — Share your field's location")
-get_location_widget()
-lat, lon = read_location_from_query()
+city_name = st.text_input("Enter City Name (e.g., Lahore, Multan, Faisalabad):", value="Lahore")
 
-if not lat or not lon:
-    st.info("Click the button above to get weather-based risk for your location.")
-    st.stop()
+if st.button("Check Outbreak Risk", type="primary"):
+    with st.spinner(f"Fetching live weather data for {city_name}..."):
+        weather_data = get_weather_forecast(city_name)
+        
+        if weather_data:
+            st.success(f"✅ Weather Data Updated for **{weather_data.get('city_name', city_name)}**")
+            st.divider()
 
-st.success(f"Location: {lat:.4f}, {lon:.4f}")
+            col1, col2, col3 = st.columns(3)
+            temp = weather_data.get('temperature', 'N/A')
+            humidity = weather_data.get('humidity', 'N/A')
+            risk = weather_data.get('risk_level', 'Low')
 
-with st.spinner("Fetching weather..."):
-    try:
-        weather = get_weather(lat, lon)
-    except Exception as e:
-        st.error(f"Could not fetch weather: {e}")
-        st.stop()
+            col1.metric("Temperature", f"{temp} °C")
+            col2.metric("Relative Humidity", f"{humidity} %")
+            col3.metric("Outbreak Risk Level", risk)
 
-col1, col2, col3 = st.columns(3)
-col1.metric("Temperature", f"{weather['temperature_2m']}°C")
-col2.metric("Humidity", f"{weather['relative_humidity_2m']}%")
-col3.metric("Precipitation", f"{weather['precipitation']} mm")
+            st.divider()
 
-st.subheader("🌾 Step 2 — Select your crop")
-
-@st.cache_data
-def load_database():
-    return pd.read_csv("data/disease_database.csv")
-
-df = load_database()
-crop = st.selectbox("Crop", sorted(df["Crop"].unique().tolist()))
-
-st.subheader("⚠️ Risk Assessment")
-risks = assess_disease_risk(
-    weather["temperature_2m"], weather["relative_humidity_2m"], weather["precipitation"]
-)
-for disease_type, level, reason in risks:
-    color = {"High": "🔴", "Moderate to High": "🟠", "Moderate": "🟡", "Low": "🟢"}.get(level, "⚪")
-    st.markdown(f"{color} **{disease_type}** — Risk: *{level}*")
-    st.caption(reason)
-
-st.divider()
-st.subheader(f"📋 Common diseases to watch for in {crop}")
-crop_diseases = df[df["Crop"] == crop]
-for _, row in crop_diseases.iterrows():
-    with st.expander(row["Disease"]):
-        st.write(f"**Symptoms:** {row['Symptoms']}")
-        st.write(f"**Treatment:** {row['Treatment']}")
+            if risk == "High Risk":
+                st.error("⚠️ **HIGH FUNGAL OUTBREAK RISK DETECTED**\n\nHigh humidity and warm temperatures create optimal conditions for rapid fungal spore germination (e.g., Rust, Blight, Downy Mildew). Proactive protective foliar spray is highly recommended.")
+            elif risk == "Moderate Risk":
+                st.warning("⚡ **MODERATE DISEASE RISK**\n\nConditions are favorable for leaf spot and mild pathogens. Monitor fields closely and avoid over-irrigation.")
+            else:
+                st.info("✅ **LOW DISEASE OUTBREAK RISK**\n\nCurrent atmospheric humidity is relatively low. Pathogen pressure is minimal.")
+        else:
+            st.error("Could not fetch weather data. Please check the city name spelling and try again.")
