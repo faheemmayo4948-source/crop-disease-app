@@ -6,7 +6,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 import streamlit as st
 from PIL import Image
 from streamlit_geolocation import streamlit_geolocation
-from lib.detect_disease import detect_disease, generate_pdf_report
+from lib.detect_disease import detect_disease, generate_pdf_report, generate_audio_guide
 
 st.set_page_config(page_title="Detect Disease · CropGuard", page_icon="🔍", layout="centered")
 
@@ -41,8 +41,7 @@ if location and isinstance(location, dict) and location.get("latitude"):
 
 st.divider()
 
-upload_label = "Upload Leaf Photo" if lang == "English" else "پتے کی تصویر اپلوڈ کریں"
-uploaded_file = st.file_uploader(upload_label, type=["jpg", "jpeg", "png"])
+uploaded_file = st.file_uploader("Upload Leaf Photo", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     img = Image.open(uploaded_file)
@@ -64,6 +63,18 @@ if uploaded_file is not None:
                 top_pred = predictions[0]
                 pdf_file = generate_pdf_report(top_pred, lat=lat, lon=lon)
                 
+                # Audio Generation Text
+                if lang == "English":
+                    audio_text = f"Diagnosis complete. Issue detected is {top_pred['label']}. Recommended sprays are: {', '.join(top_pred.get('local_sprays', []))}."
+                    audio_bg = generate_audio_guide(audio_text, lang="en")
+                else:
+                    audio_text = f"تشخیص مکمل ہو گئی۔ فصل میں {top_pred['label']} کی تشخیص ہوئی ہے۔ تجویز کردہ اسپرے یہ ہیں: {', '.join(top_pred.get('local_sprays', []))}."
+                    audio_bg = generate_audio_guide(audio_text, lang="ur")
+
+                if audio_bg:
+                    st.markdown("🔊 **Listen to Diagnostic Audio / آواز میں سنیں:**")
+                    st.audio(audio_bg, format="audio/mp3")
+
                 st.download_button(
                     label="📄 Download Official PDF Report" if lang == "English" else "📄 پی ڈی ایف رپورٹ ڈاؤن لوڈ کریں",
                     data=pdf_file,
@@ -74,30 +85,25 @@ if uploaded_file is not None:
                 st.divider()
 
                 for i, pred in enumerate(predictions):
-                    label = pred.get("label", "Crop Health Issue")
+                    label = pred.get("label", "Crop Disease")
                     score = pred.get("score", 0.0) * 100
 
                     st.markdown(f"### {i+1}. {label} (`{score:.1f}% Match`)")
                     st.progress(min(int(score), 100))
                     
-                    st.write(f"**Description:** {pred.get('description', 'Pathogen detected.')}")
+                    st.write(f"**Description:** {pred.get('description', 'N/A')}")
 
-                    # Spray Recommendations (Guaranteed Output)
                     st.markdown("#### 🎯 Recommended Chemical & Market Sprays" if lang == "English" else "#### 🎯 تجویز کردہ کیمیائی اسپرے")
-                    st.info("Recommended dosages for your region:" if lang == "English" else "آپ کے علاقے کے لیے تجویز کردہ اسپرے:")
-                    
                     sprays = pred.get("local_sprays", [])
                     for spray in sprays:
                         st.write(f"👉 **{spray}**")
 
-                    # Biological Treatments
                     bio = pred.get("biological", [])
                     if bio:
                         st.markdown("**🌱 Organic / Biological Control:**" if lang == "English" else "**🌱 حیاتیاتی علاج:**")
                         for item in bio:
                             st.write(f"- {item}")
 
-                    # Prevention Protocol
                     prev = pred.get("prevention", [])
                     if prev:
                         st.markdown("**🛡️ Preventive Protocol:**" if lang == "English" else "**🛡️ بچاؤ کی تدابیر:**")
