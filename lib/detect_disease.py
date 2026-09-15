@@ -1,41 +1,21 @@
 import streamlit as st
-from streamlit_geolocation import streamlit_geolocation
-from lib.detect_disease import predict_crop_disease
+import pandas as pd
+import os
 
-st.set_page_config(page_title="Detect Disease - CropGuard", page_icon="🔍")
-st.title("🔍 Plant Disease Detection")
+st.set_page_config(page_title="Disease Database - CropGuard", page_icon="📚")
+st.title("📚 Plant Disease Database")
 
-st.write("Apni mutasirah crop ki image upload karein taake AI disease scan kar sake.")
+csv_path = "data/disease_database.csv"
 
-uploaded_file = st.file_uploader("Upload Image (JPG/PNG)", type=["jpg", "jpeg", "png"])
-
-if uploaded_file is not None:
-    st.image(uploaded_file, caption="Uploaded Crop Image", use_container_width=True)
+if os.path.exists(csv_path):
+    df = pd.read_csv(csv_path)
     
-    if st.button("Detect Disease"):
-        with st.spinner("AI disease analyze kar raha hai..."):
-            image_bytes = uploaded_file.getvalue()
-            predictions = predict_crop_disease(image_bytes)
-            
-        if predictions:
-            st.subheader("Inference Results:")
-            if isinstance(predictions, list) and len(predictions) > 0:
-                top_pred = predictions[0]
-                label = top_pred.get("label", "Unknown")
-                score = round(top_pred.get("score", 0) * 100, 2)
-                
-                st.success(f"**Detected Disease**: {label}")
-                st.info(f"**Confidence Score**: {score}%")
-                
-                with st.expander("Show Detailed Predictions"):
-                    st.json(predictions)
-            else:
-                st.write(predictions)
-        else:
-            st.error("Prediction me koi masla aya. Token ya network connection check karein.")
-
-st.markdown("---")
-st.subheader("Optional: Capture GPS Location")
-location = streamlit_geolocation()
-if location and location.get("latitude"):
-    st.write(f"📍 GPS Location: Lat {location.get('latitude')}, Lon {location.get('longitude')}")
+    search = st.text_input("🔍 Search by Crop or Disease Name", "")
+    if search:
+        df_filtered = df[df.apply(lambda row: search.lower() in row.astype(str).str.lower().values, axis=1)]
+    else:
+        df_filtered = df
+        
+    st.dataframe(df_filtered, use_container_width=True)
+else:
+    st.warning("`data/disease_database.csv` file nahi mili. Path verify karein.")
