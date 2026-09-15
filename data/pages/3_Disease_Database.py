@@ -22,25 +22,30 @@ else:
     try:
         df = pd.read_csv(csv_path)
 
-        search_query = st.text_input("🔍 Search by Crop, Disease, or Pathogen Name:")
+        search_query = st.text_input("🔍 Search by Crop, Disease, or Pathogen Name:", key="disease_search_input")
 
-        if search_query:
-            filtered_df = df[
-                df.apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)
-            ]
+        if search_query.strip():
+            # Search across all string columns safely
+            mask = df.astype(str).apply(lambda row: row.str.contains(search_query, case=False, na=False)).any(axis=1)
+            filtered_df = df[mask]
         else:
             filtered_df = df
 
         st.write(f"Showing **{len(filtered_df)}** entries:")
 
-        for _, row in filtered_df.iterrows():
-            crop = row.get('Crop', 'Crop')
-            disease = row.get('Disease', 'Disease Name')
-            with st.expander(f"🌱 {crop} — {disease}"):
-                st.write(f"**Scientific Name / Pathogen:** _{row.get('ScientificName', 'N/A')}_")
-                st.write(f"**Symptoms:** {row.get('Symptoms', 'N/A')}")
-                st.write(f"**Treatment / Spray Protocol:** {row.get('Treatment', 'N/A')}")
-                if "Region" in row and pd.notna(row.get('Region')):
-                    st.write(f"**Prevalent Region:** {row.get('Region')}")
+        if filtered_df.empty:
+            st.warning("No matching disease records found.")
+        else:
+            for idx, row in filtered_df.iterrows():
+                crop = row.get('Crop', 'Crop')
+                disease = row.get('Disease', 'Disease Name')
+                
+                # Unique key for expander UI state
+                with st.expander(f"🌱 {crop} — {disease}", expanded=False):
+                    st.write(f"**Scientific Name / Pathogen:** _{row.get('ScientificName', 'N/A')}_")
+                    st.write(f"**Symptoms:** {row.get('Symptoms', 'N/A')}")
+                    st.write(f"**Treatment / Spray Protocol:** {row.get('Treatment', 'N/A')}")
+                    if "Region" in row and pd.notna(row.get('Region')):
+                        st.write(f"**Prevalent Region:** {row.get('Region')}")
     except Exception as e:
         st.error(f"Error reading CSV database: {e}")
