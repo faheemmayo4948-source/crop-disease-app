@@ -44,7 +44,6 @@ def signup_user(email, password):
         return None
 
 def reset_password(email):
-    """Firebase Identity Toolkit API ke zariye Password Reset Link bhejta hai"""
     api_key = get_firebase_api_key()
     url = f"https://identitytoolkit.googleapis.com/v1/accounts:sendOobCode?key={api_key}"
     payload = {
