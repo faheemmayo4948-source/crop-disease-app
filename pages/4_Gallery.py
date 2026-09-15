@@ -1,11 +1,19 @@
 import sys
 import os
 
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Ensure Root Directory is in Python Path
+ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
+if ROOT_DIR not in sys.path:
+    sys.path.insert(0, ROOT_DIR)
 
 import streamlit as st
 import pandas as pd
-from lib.firebase_client import get_all_samples
+
+try:
+    from lib.firebase_client import get_all_samples
+except ModuleNotFoundError:
+    st.error("⚠️ Could not import `lib.firebase_client`. Please ensure `lib/firebase_client.py` exists in your repository.")
+    st.stop()
 
 st.set_page_config(page_title="Admin Data Gallery · CropGuard", page_icon="🔒", layout="wide")
 
@@ -29,7 +37,7 @@ st.divider()
 samples = get_all_samples()
 
 if not samples:
-    st.warning("No dataset samples found in Firestore collection.")
+    st.warning("No dataset samples found.")
 else:
     df = pd.DataFrame(samples)
 
@@ -43,8 +51,8 @@ else:
 
     st.divider()
 
-    # Consent Filter for Data Export / Monetization Compliance
-    only_consent = st.checkbox("Show ONLY samples with farmer consent (Recommended for Commercial/Research Export)", value=True)
+    # Consent Filter
+    only_consent = st.checkbox("Show ONLY samples with farmer consent (Recommended for Export)", value=True)
 
     export_df = df.copy()
     if only_consent and "consent_granted" in export_df.columns:
@@ -53,7 +61,7 @@ else:
     # CSV Export Button
     csv_data = export_df.to_csv(index=False).encode('utf-8')
     st.download_button(
-        label="📥 Export Filtered Dataset CSV (For Companies/Research)",
+        label="📥 Export Filtered Dataset CSV (For Research/Companies)",
         data=csv_data,
         file_name="CropGuard_Consented_Research_Data.csv",
         mime="text/csv",
@@ -64,7 +72,7 @@ else:
     st.subheader("🖼️ Sample Gallery View")
 
     cols = st.columns(3)
-    for index, row in export_df.iterrows():
+    for index, row in export_df.reset_index(drop=True).iterrows():
         col_idx = index % 3
         with cols[col_idx]:
             img_url = row.get("image_url", "")
