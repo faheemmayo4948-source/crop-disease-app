@@ -1,3 +1,11 @@
+import os
+import streamlit as st
+
+try:
+    from reportlab.lib.pagesizes import letter
+    from reportlab.pdfgen import canvas
+except ModuleNotFoundError:
+    pass  # Handles missing reportlab gracefully
 import base64
 import requests
 import streamlit as st
