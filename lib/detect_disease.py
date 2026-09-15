@@ -1,26 +1,42 @@
+import base64
 import requests
 import streamlit as st
 
-MODEL_ID = "linkanjarad/mobilenet_v2_1.0_224-plant-disease-identification"
-HF_ENDPOINT = f"https://router.huggingface.co/hf-inference/models/{MODEL_ID}"
+PLANT_ID_ENDPOINT = "https://api.plant.id/v2/health_assessment"
 
 
 def detect_disease(image_bytes, content_type="image/jpeg"):
-    token = st.secrets.get("hf_api_token")
-    if not token:
-        raise ValueError("Hugging Face token missing. Add hf_api_token in secrets.")
+    api_key = st.secrets.get("plant_id_api_key")
+    if not api_key:
+        raise ValueError("Plant.id API key missing. Add plant_id_api_key in secrets.")
+
+    encoded_image = base64.b64encode(image_bytes).decode("ascii")
+
+    payload = {
+        "images": [encoded_image],
+        "modifiers": ["health_all"],
+        "disease_details": ["description", "treatment", "common_names"],
+    }
 
     response = requests.post(
-        HF_ENDPOINT,
+        PLANT_ID_ENDPOINT,
+        json=payload,
         headers={
-            "Authorization": f"Bearer {token}",
-            "Content-Type": content_type,
+            "Content-Type": "application/json",
+            "Api-Key": api_key,
         },
-        data=image_bytes,
         timeout=30,
     )
 
     if response.status_code != 200:
-        raise RuntimeError(f"Model request failed: {response.text}")
+        raise RuntimeError(f"Plant.id request failed: {response.text}")
 
-    return response.json()
+    data = response.json()
+    diseases = data.get("health_assessment", {}).get("diseases", [])
+
+    # Convert Plant.id's format into the same {label, score} shape the app already expects
+    predictions = [
+        {"label": d.get("name", "Unknown"), "score": d.get("probability", 0)}
+        for d in diseases
+    ]
+    return predictions
