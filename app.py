@@ -6,11 +6,12 @@ st.set_page_config(
     layout="centered"
 )
 
-# Custom Styling for Clean Professional Look
+# Custom Styling with Clickable Card Links
 st.markdown("""
 <style>
     .stApp { background-color: #F8FAFC; }
     .block-container { padding-top: 2rem !important; max-width: 700px !important; }
+    
     .main-header {
         background: linear-gradient(135deg, #0F766E 0%, #0D9488 100%);
         padding: 24px;
@@ -19,13 +20,41 @@ st.markdown("""
         text-align: center;
         margin-bottom: 20px;
     }
+    
+    /* Clickable Link Cards Styling */
+    .feature-link {
+        text-decoration: none !important;
+        color: inherit !important;
+        display: block;
+    }
+    
     .feature-card {
         background-color: white;
         padding: 18px;
-        border-radius: 8px;
-        border-left: 5px solid #0D9488;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-        margin-bottom: 15px;
+        border-radius: 10px;
+        border-left: 6px solid #0D9488;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+        margin-bottom: 16px;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        cursor: pointer;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 15px rgba(13, 148, 136, 0.15);
+        border-left-color: #0F766E;
+    }
+
+    .feature-card h4 {
+        margin: 0 0 8px 0;
+        color: #0F766E;
+        font-size: 1.15em;
+    }
+
+    .feature-card p {
+        margin: 0;
+        color: #475569;
+        font-size: 0.95em;
     }
 </style>
 """, unsafe_allow_html=True)
@@ -40,7 +69,7 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-# Researcher & Platform Info
+# Researcher Info
 st.markdown("""
 <div style="background-color: #EFF6FF; padding: 12px 16px; border-radius: 8px; border: 1px solid #BFDBFE; margin-bottom: 20px;">
     <b>👨‍🔬 Project Lead & Research Director:</b> Muhammad Faheem (Graduate in Biological Sciences)<br/>
@@ -48,42 +77,63 @@ st.markdown("""
 </div>
 """, unsafe_allow_html=True)
 
-st.subheader("🚀 Platform Capabilities")
+st.subheader("🚀 Choose a Feature (Click any option)")
 
+# Clickable Feature Cards
 st.markdown("""
-<div class="feature-card">
-    <h4>🔍 1. Instant Disease Detection & Audio Guide</h4>
-    <p>Upload a leaf image to get accurate plant disease diagnosis, local market spray dosages, downloadable PDF reports, and <b>Urdu/English voice notes</b> for farmers.</p>
-</div>
+<a href="/Detect_Disease" target="_self" class="feature-link">
+    <div class="feature-card">
+        <h4>🔍 1. Detect Disease & Audio Guide ➔</h4>
+        <p>Upload a leaf image for diagnosis, local spray recommendations, downloadable PDF report, and voice notes.</p>
+    </div>
+</a>
 
-<div class="feature-card">
-    <h4>🌾 2. Farmer Data Contribution & Research Dataset</h4>
-    <p>Logged-in farmers can submit geotagged crop samples with ethical consent to help build a comprehensive research database for agri-pathology.</p>
-</div>
+<a href="/Contribute_Data" target="_self" class="feature-link">
+    <div class="feature-card">
+        <h4>🌾 2. Contribute Data ➔</h4>
+        <p>Submit crop samples with location details to support agricultural pathology research.</p>
+    </div>
+</a>
 
-<div class="feature-card">
-    <h4>🌤️ 3. Weather-Based Disease Forecast</h4>
-    <p>Get real-time weather analytics and automated fungal/bacterial outbreak warnings based on temperature and relative humidity thresholds.</p>
-</div>
+<a href="/Disease_Forecast" target="_self" class="feature-link">
+    <div class="feature-card">
+        <h4>🌤️ 3. Weather & Disease Forecast ➔</h4>
+        <p>Get live weather updates and automatic fungal outbreak warnings for your city.</p>
+    </div>
+</a>
 
-<div class="feature-card">
-    <h4>📖 4. Crop Disease Knowledge Base</h4>
-    <p>Access an extensive reference database covering top crop diseases, scientific pathogen classifications, symptoms, and preventive protocols.</p>
-</div>
+<a href="/Disease_Database" target="_self" class="feature-link">
+    <div class="feature-card">
+        <h4>📖 4. Crop Disease Database ➔</h4>
+        <p>Search standard reference records, symptoms, and treatment protocols.</p>
+    </div>
+</a>
+
+<a href="/Account" target="_self" class="feature-link">
+    <div class="feature-card">
+        <h4>👤 5. Farmer Account Portal ➔</h4>
+        <p>Log in or create an account to manage your submissions and track contributions.</p>
+    </div>
+</a>
 """, unsafe_allow_html=True)
 
 st.divider()
 
-st.subheader("📌 Quick Navigation")
+# Direct Button Navigation (Alternative Quick Actions)
+st.subheader("⚡ Quick Action Buttons")
 col1, col2 = st.columns(2)
 
 with col1:
-    st.info("🔍 **Detect Disease**\n\nUpload leaf photo for diagnosis and audio guides.")
-    st.info("🌤️ **Disease Forecast**\n\nCheck weather-based outbreak risk for your region.")
+    if st.button("🔍 Open Disease Detector", type="primary", use_container_width=True):
+        st.switch_page("pages/1_Detect_Disease.py")
+    if st.button("🌤️ Open Disease Forecast", use_container_width=True):
+        st.switch_page("pages/7_Disease_Forecast.py")
 
 with col2:
-    st.success("🌾 **Contribute Data**\n\nShare sample data to support agricultural research.")
-    st.success("📖 **Disease Database**\n\nExplore treatments & scientific symptoms.")
+    if st.button("🌾 Contribute Sample Data", use_container_width=True):
+        st.switch_page("pages/2_Contribute_Data.py")
+    if st.button("📖 Search Disease Database", use_container_width=True):
+        st.switch_page("pages/3_Disease_Database.py")
 
 st.divider()
 st.caption("© 2026 CropGuard AI Platform — Developed by Muhammad Faheem | Biological Sciences & AgriTech Research")
