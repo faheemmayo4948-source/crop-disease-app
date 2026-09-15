@@ -9,15 +9,12 @@ def get_plant_id_api_key():
     return st.secrets.get("PLANT_ID_API_KEY", "xvkwB969s2vmuUinWlphpe4P4XKSAEUxvQ9hlcBtsWohj420rd")
 
 def analyze_crop_image(image_bytes):
-    """
-    Sends crop leaf image to Plant.id v3 API for high-accuracy disease diagnosis.
-    """
+    """Sends crop leaf image to Plant.id v3 API for high-accuracy disease diagnosis."""
     api_key = get_plant_id_api_key()
     if not api_key:
         st.error("⚠️ Plant.id API Key is missing in Streamlit Secrets.")
         return None
 
-    # Encode image to Base64 format required by Plant.id API
     encoded_image = base64.b64encode(image_bytes).decode("utf-8")
 
     url = "https://plant.id/api/v3/health_assessment"
@@ -34,7 +31,7 @@ def analyze_crop_image(image_bytes):
 
     try:
         response = requests.post(url, json=payload, headers=headers, timeout=15)
-        if response.status_code == 201 or response.status_code == 200:
+        if response.status_code in [200, 201]:
             return response.json()
         else:
             st.error(f"Plant.id API Error ({response.status_code}): {response.text}")
@@ -42,6 +39,10 @@ def analyze_crop_image(image_bytes):
     except Exception as e:
         st.error(f"Network error contacting Plant.id API: {e}")
         return None
+
+# Alias function to fix ImportError
+def detect_disease(image_bytes):
+    return analyze_crop_image(image_bytes)
 
 def generate_voice_note(text, lang='ur'):
     """Generates Urdu/English voice note using gTTS"""
