@@ -28,5 +28,6 @@ def save_sample(crop_name, disease_label, image_url, farmer_uid=None, farmer_ema
             "farmerEmail": farmer_email,
             "latitude": latitude,
             "longitude": longitude,
+            "createdAt": firestore.SERVER_TIMESTAMP,
         }
     )
