@@ -1,110 +1,89 @@
 import streamlit as st
 
-st.set_page_config(page_title="CropGuard", page_icon="🌾", layout="centered")
+st.set_page_config(
+    page_title="CropGuard — AI Agriculture Diagnostics",
+    page_icon="🌱",
+    layout="centered"
+)
 
-# --- Custom styling ---
+# Custom Styling for Clean Professional Look
 st.markdown("""
 <style>
-    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
-
-    html, body, [class*="css"] {
-        font-family: 'Poppins', sans-serif;
-    }
-
-    .stButton > button {
-        border-radius: 8px;
-        border: none;
-        background-color: #1F7A4D;
+    .stApp { background-color: #F8FAFC; }
+    .block-container { padding-top: 2rem !important; max-width: 700px !important; }
+    .main-header {
+        background: linear-gradient(135deg, #0F766E 0%, #0D9488 100%);
+        padding: 24px;
+        border-radius: 12px;
         color: white;
-        font-weight: 600;
-        padding: 0.5rem 1.5rem;
-        transition: all 0.2s ease;
+        text-align: center;
+        margin-bottom: 20px;
     }
-    .stButton > button:hover {
-        background-color: #16532F;
-        transform: translateY(-1px);
-    }
-
-    h1, h2, h3 {
-        color: #16532F;
-    }
-
-    [data-testid="stMetric"] {
-        background-color: #EDF3ED;
-        border-radius: 10px;
-        padding: 1rem;
-        border: 1px solid #D4E4D8;
-    }
-
-    [data-testid="stPageLink"] {
+    .feature-card {
+        background-color: white;
+        padding: 18px;
         border-radius: 8px;
-        background-color: #EDF3ED;
-        padding: 0.3rem 0.8rem;
+        border-left: 5px solid #0D9488;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        margin-bottom: 15px;
     }
 </style>
 """, unsafe_allow_html=True)
 
-# --- Hero banner ---
-st.image("assets/hero-banner.png", use_container_width=True)
+# Main Banner
+st.markdown("""
+<div class="main-header">
+    <h1 style="color: white; margin: 0;">🌱 CropGuard AI</h1>
+    <p style="margin-top: 8px; font-size: 1.1em; opacity: 0.9;">
+        Smart Agricultural Diagnostics, Weather Risk Analysis & Farmer Research Network
+    </p>
+</div>
+""", unsafe_allow_html=True)
 
-st.title("🌾 CropGuard")
-st.subheader("Spot crop disease early, before it spreads across the field.")
+# Researcher & Platform Info
+st.markdown("""
+<div style="background-color: #EFF6FF; padding: 12px 16px; border-radius: 8px; border: 1px solid #BFDBFE; margin-bottom: 20px;">
+    <b>👨‍🔬 Project Lead & Research Director:</b> Muhammad Faheem (Graduate in Biological Sciences)<br/>
+    <b>🎯 Mission:</b> Empowering local farmers with instant AI plant pathology, localized chemical/biological treatment plans, and multilingual voice assistance.
+</div>
+""", unsafe_allow_html=True)
 
-st.write(
-    """
-    Upload a photo of an affected leaf and get an instant diagnosis.
-    Every contribution also helps build an open dataset for researchers
-    working on crop health.
-    """
-)
+st.subheader("🚀 Platform Capabilities")
 
-# --- Navigation ---
-row1_col1, row1_col2, row1_col3, row1_col4, row1_col5 = st.columns(5)
-with row1_col1:
-    st.page_link("pages/1_Detect_Disease.py", label="🔍 Detect a disease", icon="🔍")
-with row1_col2:
-    st.page_link("pages/2_Contribute_Data.py", label="📤 Contribute a sample", icon="📤")
-with row1_col3:
-    st.page_link("pages/3_Disease_Database.py", label="🌍 Browse database", icon="🌍")
-with row1_col4:
-    st.page_link("pages/5_Account.py", label="👤 My account", icon="👤")
-with row1_col5:
-    st.page_link("pages/7_Disease_Forecast.py", label="🌤️ Weather forecast", icon="🌤️")
+st.markdown("""
+<div class="feature-card">
+    <h4>🔍 1. Instant Disease Detection & Audio Guide</h4>
+    <p>Upload a leaf image to get accurate plant disease diagnosis, local market spray dosages, downloadable PDF reports, and <b>Urdu/English voice notes</b> for farmers.</p>
+</div>
 
-row2_col1, row2_col2, row2_col3, row2_col4 = st.columns(4)
-with row2_col1:
-    st.page_link("pages/8_Spray_Guide.py", label="💊 Spray guide", icon="💊")
-with row2_col2:
-    st.page_link("pages/9_Dealer_Locator.py", label="🏪 Find stores", icon="🏪")
-with row2_col3:
-    st.page_link("pages/10_Field_History.py", label="📈 Field history", icon="📈")
-with row2_col4:
-    st.page_link("pages/11_Research_Hub.py", label="📚 Research hub", icon="📚")
+<div class="feature-card">
+    <h4>🌾 2. Farmer Data Contribution & Research Dataset</h4>
+    <p>Logged-in farmers can submit geotagged crop samples with ethical consent to help build a comprehensive research database for agri-pathology.</p>
+</div>
 
-st.divider()
+<div class="feature-card">
+    <h4>🌤️ 3. Weather-Based Disease Forecast</h4>
+    <p>Get real-time weather analytics and automated fungal/bacterial outbreak warnings based on temperature and relative humidity thresholds.</p>
+</div>
 
-# --- Value proposition ---
-c1, c2, c3 = st.columns(3)
-with c1:
-    st.markdown("**For farmers**")
-    st.caption("Take a photo of a sick leaf and get a likely diagnosis in seconds.")
-with c2:
-    st.markdown("**For researchers**")
-    st.caption("Access a growing, labeled dataset of crop images from real fields.")
-with c3:
-    st.markdown("**For the data**")
-    st.caption("Every contribution builds a global picture of crop health over time.")
+<div class="feature-card">
+    <h4>📖 4. Crop Disease Knowledge Base</h4>
+    <p>Access an extensive reference database covering top crop diseases, scientific pathogen classifications, symptoms, and preventive protocols.</p>
+</div>
+""", unsafe_allow_html=True)
 
 st.divider()
 
-# --- Share ---
-st.subheader("📢 Doston ko share karen")
-share_text = "Apni fasal ki bimari sirf ek photo se pehchanen — bilkul FREE! CropGuard app try karen"
-share_url = "https://detect-diseas-faheem.streamlit.app"  # apna asal app URL confirm kar len
-whatsapp_link = f"https://wa.me/?text={share_text}%20{share_url}"
-st.link_button("📤 WhatsApp per Share karen", whatsapp_link, use_container_width=True)
+st.subheader("📌 Quick Navigation")
+col1, col2 = st.columns(2)
+
+with col1:
+    st.info("🔍 **Detect Disease**\n\nUpload leaf photo for diagnosis and audio guides.")
+    st.info("🌤️ **Disease Forecast**\n\nCheck weather-based outbreak risk for your region.")
+
+with col2:
+    st.success("🌾 **Contribute Data**\n\nShare sample data to support agricultural research.")
+    st.success("📖 **Disease Database**\n\nExplore treatments & scientific symptoms.")
 
 st.divider()
-
-# --- Footer ---
-st.caption("CropGuard — built to help farmers and researchers.")
+st.caption("© 2026 CropGuard AI Platform — Developed by Muhammad Faheem | Biological Sciences & AgriTech Research")
