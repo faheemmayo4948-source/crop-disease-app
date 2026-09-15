@@ -25,6 +25,7 @@ if "user" in st.session_state and st.session_state.user:
         st.session_state.user = None
         st.rerun()
 else:
+    # 3 Tabs: Login, Signup, Forgot Password
     tab1, tab2, tab3 = st.tabs(["🔐 Log In", "📝 Sign Up", "🔑 Forgot Password"])
 
     with tab1:
