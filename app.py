@@ -1,108 +1,72 @@
-import os
 import streamlit as st
-import pandas as pd
-from PIL import Image
 
-# 1. Page Configuration (Responsive & Touch-Friendly)
-st.set_page_config(
-    page_title="CropGuard - Smart Plant Health",
-    page_icon="🌾",
-    layout="centered",  # Touch devices par behtar dikhta hai
-    initial_sidebar_state="collapsed"
-)
+st.set_page_config(page_title="CropGuard", page_icon="🌾", layout="centered")
 
-# Custom CSS for Big Touch Controls & Better Spacing
 st.markdown("""
-    <style>
-    /* Touch friendly big buttons */
-    .stButton>button {
-        width: 100%;
-        height: 3.5rem;
-        font-size: 1.2rem !important;
-        font-weight: bold;
-        border-radius: 12px;
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
+    html, body, [class*="css"] { font-family: 'Poppins', sans-serif; }
+    .stButton > button {
+        border-radius: 8px; border: none; background-color: #1F7A4D;
+        color: white; font-weight: 600; padding: 0.5rem 1.5rem;
+        transition: all 0.2s ease;
     }
-    /* Better spacing for mobile screens */
-    .block-container {
-        padding-top: 1.5rem;
-        padding-bottom: 2rem;
+    .stButton > button:hover { background-color: #16532F; transform: translateY(-1px); }
+    h1, h2, h3 { color: #16532F; }
+    [data-testid="stMetric"] {
+        background-color: #EDF3ED; border-radius: 10px;
+        padding: 1rem; border: 1px solid #D4E4D8;
     }
-    </style>
+    [data-testid="stPageLink"] {
+        border-radius: 8px; background-color: #EDF3ED; padding: 0.3rem 0.8rem;
+    }
+</style>
 """, unsafe_allow_html=True)
 
-# 2. Header / Hero Banner
-hero_path = "assets/hero-banner.png"
-if os.path.exists(hero_path):
-    st.image(hero_path, use_container_width=True)
-else:
-    st.title("🌾 CropGuard")
+st.title("🌾 CropGuard")
+st.subheader("Spot crop disease early, before it spreads across the field.")
 
-st.markdown("### 🌿 Fasal Ki Bimari Ki Pehchan Karein")
-st.caption("Aapni fasal ki tasveer upload karein aur fawri elaj paayein.")
+st.write(
+    """
+    Upload a photo of an affected leaf and get an instant diagnosis.
+    Every contribution also helps build an open dataset for researchers
+    working on crop health.
+    """
+)
+
+col1, col2, col3 = st.columns(3)
+with col1:
+    st.page_link("pages/1_Detect_Disease.py", label="🔍 Detect a disease", icon="🔍")
+with col2:
+    st.page_link("pages/2_Contribute_Data.py", label="📤 Contribute a sample", icon="📤")
+with col3:
+    st.page_link("pages/3_Disease_Database.py", label="🌍 Browse database", icon="🌍")
+
+col4, col5 = st.columns(2)
+with col4:
+    st.page_link("pages/5_Account.py", label="👤 My account", icon="👤")
+with col5:
+    st.page_link("pages/7_Disease_Forecast.py", label="🌤️ Weather forecast", icon="🌤️")
 
 st.divider()
 
-# 3. Touch-Friendly Navigation Tabs
-tab1, tab2, tab3 = st.tabs(["📸 Detect Disease", "📖 Database", "👤 Account"])
+c1, c2, c3 = st.columns(3)
+with c1:
+    st.markdown("**For farmers**")
+    st.caption("Take a photo of a sick leaf and get a likely diagnosis in seconds.")
+with c2:
+    st.markdown("**For researchers**")
+    st.caption("Access a growing, labeled dataset of crop images from real fields.")
+with c3:
+    st.markdown("**For the data**")
+    st.caption("Every contribution builds a global picture of crop health over time.")
 
-# --- TAB 1: Disease Detection ---
-with tab1:
-    st.subheader("Tasveer Upload Karein")
-    
-    # Touch Input Option: File Upload or Camera
-    input_method = st.radio(
-        "Zariya chunein:", 
-        ["📂 File Upload", "📷 Camera Capture"], 
-        horizontal=True
-    )
-    
-    uploaded_image = None
-    if input_method == "📂 File Upload":
-        uploaded_image = st.file_uploader("Fasal ki tasveer chunien", type=["jpg", "jpeg", "png"])
-    else:
-        uploaded_image = st.camera_input("Tasveer kheenchein")
+st.divider()
+st.subheader("📢 Doston ko share karen")
+share_text = "Apni fasal ki bimari sirf ek photo se pehchanen — bilkul FREE! CropGuard app try karen"
+share_url = "https://detect-diseas-faheem.streamlit.app"
+whatsapp_link = f"https://wa.me/?text={share_text}%20{share_url}"
+st.link_button("📤 WhatsApp per Share karen", whatsapp_link, use_container_width=True)
 
-    if uploaded_image:
-        image = Image.open(uploaded_image)
-        st.image(image, caption="Aap ki tasveer", use_container_width=True)
-        
-        # Large Touch Action Button
-        if st.button("🔍 Check Bimari (Analyze)", type="primary"):
-            with st.spinner("Bimari ki jaanch ho rahi hai..."):
-                # Simulated detection logic
-                st.success("✅ Pehchan Mukammal!")
-                
-                st.markdown("""
-                ---
-                ### 📊 Nateeja (Result):
-                * **Fasal:** Wheat (Gandum)
-                * **Bimari:** Leaf Rust
-                * **Confidence:** 94%
-                
-                💉 **Tajweez Karda Elaj:**  
-                Fawri tor par munasib fungicide ka spray karein aur pani ki miqdar ko munasib rakhein.
-                ---
-                """)
-
-# --- TAB 2: Quick Database Lookup ---
-with tab2:
-    st.subheader("📖 Disease Database")
-    
-    db_path = "data/disease_database.csv"
-    if os.path.exists(db_path):
-        try:
-            df = pd.read_csv(db_path)
-            st.dataframe(df, use_container_width=True)
-        except Exception:
-            st.warning("CSV File parhne mein masla hai.")
-    else:
-        st.info("Database file filhal mojood nahi hai.")
-
-# --- TAB 3: Simple User Account ---
-with tab3:
-    st.subheader("👤 User Profile")
-    st.text_input("Aapka Naam / Name")
-    st.text_input("Mobile Number")
-    
-    if st.button("Save Profile"):
-        st.toast("Profile successfully save ho gayi hai! 🎉")
+st.divider()
+st.caption("CropGuard — built to help farmers and researchers.")
