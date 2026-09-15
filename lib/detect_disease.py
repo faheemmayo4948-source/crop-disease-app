@@ -2,6 +2,7 @@ import base64
 import requests
 import streamlit as st
 from io import BytesIO
+from gtts import gTTS
 
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, HRFlowable
@@ -14,7 +15,6 @@ def get_location_based_sprays(disease_name, latitude=None):
     disease_lower = str(disease_name).lower()
     is_south_asia = latitude is None or (5.0 <= latitude <= 37.0)
 
-    # Blight, Leaf Spot, Scab, Anthracnose
     if any(k in disease_lower for k in [
         "bipolaris", "physoderma", "alternaria", "cercospora", "phytophthora", 
         "helminthosporium", "septoria", "blight", "spot", "scab", "anthracnose", "leaf"
@@ -23,16 +23,13 @@ def get_location_based_sprays(disease_name, latitude=None):
             return [
                 "Mancozeb 75% WP (e.g., Dithane M-45) — 2g / Liter water",
                 "Propiconazole 25% EC (e.g., Tilt) — 1ml / Liter water",
-                "Copper Oxychloride 50% WP — 2.5g / Liter water",
-                "Cymoxanil + Mancozeb (e.g., Curzate) — 2g / Liter water"
+                "Copper Oxychloride 50% WP — 2.5g / Liter water"
             ]
         return [
             "Broad-spectrum Copper Fungicide — 2g / Liter water",
-            "Mancozeb 75% WP Foliar Spray — 2g / Liter water",
-            "Chlorothalonil 500 SC — 2ml / Liter water"
+            "Mancozeb 75% WP Foliar Spray — 2g / Liter water"
         ]
 
-    # Rust & Mildew
     elif any(k in disease_lower for k in [
         "rust", "mildew", "puccinia", "erysiphe", "oidium", "peronospora", "plasmopara"
     ]):
@@ -47,43 +44,49 @@ def get_location_based_sprays(disease_name, latitude=None):
             "Wettable Sulfur Spray — 3g / Liter water"
         ]
 
-    # Rot & Wilt
     elif any(k in disease_lower for k in [
         "rot", "wilt", "fusarium", "rhizoctonia", "pythium", "sclerotium", "verticillium"
     ]):
-        if is_south_asia:
-            return [
-                "Carbendazim 50% WP (e.g., Bavistin) — Soil Drenching @ 1.5g / Liter water",
-                "Metalaxyl 8% + Mancozeb 64% WP — 2g / Liter water",
-                "Trichoderma viride (Bio-fungicide) — 5g / Liter water"
-            ]
         return [
-            "Fosetyl-Aluminum Soil Drench — 2g / Liter water",
-            "Metalaxyl Systemic Fungicide — 1.5g / Liter water"
+            "Carbendazim 50% WP (e.g., Bavistin) — Soil Drenching @ 1.5g / Liter water",
+            "Metalaxyl 8% + Mancozeb 64% WP — 2g / Liter water"
         ]
 
-    # Bacterial & Viral Infections
     elif any(k in disease_lower for k in [
         "bacterial", "xanthomonas", "pseudomonas", "erwinia", "virus", "mosaic", "curl"
     ]):
         return [
             "Streptomycin Sulphate + Tetracycline — 0.5g / 10 Liter water",
-            "Copper Hydroxide 77% WP — 2g / Liter water",
-            "Imidacloprid 17.8% SL (Control Sucking Vector Insects) — 0.5ml / Liter water"
+            "Copper Hydroxide 77% WP — 2g / Liter water"
         ]
 
-    # Universal Fallback for Any Uncategorized Disease / Healthy Leaves
     return [
-        "Mancozeb 75% WP (Protective Broad-Spectrum Fungicide) — 2g / Liter water",
+        "Mancozeb 75% WP (Broad Spectrum Fungicide) — 2g / Liter water",
         "Copper Oxychloride 50% WP — 2.5g / Liter water",
-        "Neem Oil Extract Solution (Organic Preventive) — 5ml / Liter water"
+        "Neem Oil Extract Solution (Organic) — 5ml / Liter water"
     ]
+
+
+def generate_audio_guide(text: str, lang: str = "en"):
+    """
+    gTTS se audio stream generate karta hai in-memory BytesIO buffer mein.
+    """
+    try:
+        tts_lang = "ur" if lang == "ur" else "en"
+        tts = gTTS(text=text, lang=tts_lang)
+        fp = BytesIO()
+        tts.write_to_fp(fp)
+        fp.seek(0)
+        return fp
+    except Exception as e:
+        st.error(f"Audio generation error: {e}")
+        return None
 
 
 def detect_disease(image_bytes: bytes, content_type: str = "image/jpeg", latitude: float = None, longitude: float = None):
     api_key = st.secrets.get("PLANT_ID_API_KEY", "")
     if not api_key:
-        st.error("⚠️ PLANT_ID_API_KEY Streamlit Secrets mein missing hai.")
+        st.error("⚠️ PLANT_ID_API_KEY Secrets mein nahi mili.")
         return []
 
     encoded_image = base64.b64encode(image_bytes).decode("utf-8")
@@ -110,43 +113,25 @@ def detect_disease(image_bytes: bytes, content_type: str = "image/jpeg", latitud
             
             results = []
             for item in suggestions[:3]:
-                disease_name = item.get("name", "Crop Health Issue Detected")
+                disease_name = item.get("name", "Crop Issue Detected")
                 probability = item.get("probability", 0.0)
                 details = item.get("details", {}) or {}
-                treatment_data = details.get("treatment", {}) or {}
 
-                # Robust Safe Parsing
-                bio_raw = treatment_data.get("biological", [])
-                chem_raw = treatment_data.get("chemical", [])
-                prev_raw = details.get("preventative_measures", [])
-
-                bio = bio_raw if isinstance(bio_raw, list) else ([bio_raw] if bio_raw else [])
-                chem = chem_raw if isinstance(chem_raw, list) else ([chem_raw] if chem_raw else [])
-                prev = prev_raw if isinstance(prev_raw, list) else ([prev_raw] if prev_raw else [])
-
-                # Fallbacks for biological & prevention guidelines if API returns empty
-                if not bio:
-                    bio = ["Neem Leaf Extract (5% spray) to naturally suppress early pathogen spores."]
-                if not prev:
-                    prev = [
-                        "Ensure proper field drainage to avoid excess canopy humidity.",
-                        "Maintain optimal plant-to-plant spacing for adequate ventilation.",
-                        "Remove and burn severely infected leaves to prevent secondary infection."
-                    ]
+                bio = ["Neem Oil Spray (5ml/L) to prevent fungal spore spread."]
+                prev = [
+                    "Maintain field sanitation and clean infected leaves.",
+                    "Ensure adequate air ventilation between plant rows."
+                ]
 
                 local_sprays = get_location_based_sprays(disease_name, latitude)
-
-                # Merge API chemical recommendations with local sprays
-                final_sprays = list(dict.fromkeys(local_sprays + chem))
 
                 results.append({
                     "label": disease_name,
                     "score": probability,
-                    "description": details.get("description", "Pathogen detected affecting crop leaves. Prompt application of protective or curative fungicides is recommended."),
+                    "description": details.get("description", "Pathogen activity observed on leaf foliage."),
                     "biological": bio,
-                    "chemical": chem,
                     "prevention": prev,
-                    "local_sprays": final_sprays
+                    "local_sprays": local_sprays
                 })
             return results
     except Exception as e:
@@ -167,39 +152,23 @@ def generate_pdf_report(pred_data, lat=None, lon=None):
     body_style = ParagraphStyle('BodyStyle', parent=styles['Normal'], fontSize=9, leading=13, textColor=colors.HexColor('#334155'))
 
     story = []
-
-    story.append(Paragraph("🌱 CropGuard — Official Agricultural Diagnostic Report", title_style))
-    story.append(Paragraph("<b>Lead Researcher:</b> Muhammad Faheem (Graduate in Biological Sciences)", author_style))
-    
-    loc_text = f"GPS Coordinates: {lat:.4f}, {lon:.4f}" if lat else "GPS Location: Not Specified"
-    story.append(Paragraph(f"<b>Platform:</b> CropGuard AI | {loc_text}", sub_style))
+    story.append(Paragraph("🌱 CropGuard — Agricultural Diagnostic Report", title_style))
+    story.append(Paragraph("<b>Lead Researcher:</b> Muhammad Faheem (Biological Sciences)", author_style))
     story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#CBD5E1'), spaceAfter=10))
 
-    label = pred_data.get("label", "Crop Health Issue Detected")
+    label = pred_data.get("label", "Crop Issue")
     score = pred_data.get("score", 0.0) * 100
-    description = pred_data.get("description", "N/A")
 
     story.append(Paragraph(f"Primary Diagnosis: {label} ({score:.1f}% Match)", heading_style))
-    story.append(Paragraph(f"<b>Description:</b> {description}", body_style))
+    story.append(Paragraph(f"<b>Description:</b> {pred_data.get('description', 'N/A')}", body_style))
     story.append(Spacer(1, 8))
 
-    local_sprays = pred_data.get("local_sprays", [])
-    if local_sprays:
-        story.append(Paragraph("🎯 Recommended Market Sprays & Dosages:", heading_style))
-        for spray in local_sprays:
+    sprays = pred_data.get("local_sprays", [])
+    if sprays:
+        story.append(Paragraph("🎯 Recommended Chemical Sprays:", heading_style))
+        for spray in sprays:
             story.append(Paragraph(f"• {spray}", body_style))
-        story.append(Spacer(1, 4))
 
-    prevention = pred_data.get("prevention", [])
-    if prevention:
-        story.append(Spacer(1, 4))
-        story.append(Paragraph("🛡️ Preventive Measures:", heading_style))
-        for tip in prevention:
-            story.append(Paragraph(f"• {tip}", body_style))
-
-    story.append(Spacer(1, 15))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor('#CBD5E1'), spaceAfter=6))
-    story.append(Paragraph("<i>Verified & Prepared by Muhammad Faheem | Biological Sciences & AgriTech Diagnostics</i>", author_style))
     doc.build(story)
     buffer.seek(0)
     return buffer
