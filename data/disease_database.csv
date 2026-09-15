@@ -1,52 +1,19 @@
-import sys
-import os
-import pandas as pd
-import streamlit as st
-
-ROOT_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
-if ROOT_DIR not in sys.path:
-    sys.path.insert(0, ROOT_DIR)
-
-st.set_page_config(page_title="Disease Database · CropGuard", page_icon="📚", layout="wide")
-
-st.title("📚 Crop Disease Knowledge Base")
-st.write("Browse common crop diseases, early symptoms, and organic/chemical remedies.")
-
-@st.cache_data
-def load_database():
-    csv_path = os.path.join(ROOT_DIR, "data", "disease_database.csv")
-    try:
-        # on_bad_lines='skip' ensures malformed lines won't crash Pandas
-        return pd.read_csv(csv_path, on_bad_lines='skip', engine='python')
-    except Exception:
-        # Fallback dataset in case CSV file is corrupted or missing
-        return pd.DataFrame([
-            {
-                "Crop": "Wheat",
-                "Disease": "Leaf Rust",
-                "Symptoms": "Reddish-orange pustules on leaf surface",
-                "Treatment": "Spray Propiconazole or Copper Fungicide"
-            },
-            {
-                "Crop": "Cotton",
-                "Disease": "Leaf Curl Virus",
-                "Symptoms": "Upward curling of leaves and thickened veins",
-                "Treatment": "Control whitefly vector using Imidacloprid"
-            },
-            {
-                "Crop": "Rice",
-                "Disease": "Bacterial Leaf Blight",
-                "Symptoms": "Water-soaked lesions turning yellow-white streaks",
-                "Treatment": "Apply Copper Oxychloride + Streptocycline"
-            }
-        ])
-
-df = load_database()
-
-search_query = st.text_input("🔍 Search disease or crop name:", "")
-
-if search_query:
-    filtered_df = df[df.apply(lambda row: row.astype(str).str.contains(search_query, case=False).any(), axis=1)]
-    st.dataframe(filtered_df, use_container_width=True)
-else:
-    st.dataframe(df, use_container_width=True)
+Crop,Disease,ScientificName,Symptoms,Treatment,Region
+Wheat,Leaf Rust,Puccinia triticina,Orange-brown pustules on leaves,Apply Tebuconazole or Propiconazole fungicide,Punjab & Sindh
+Wheat,Powdery Mildew,Blumeria graminis,White powdery patches on leaves and stems,Spray Sulfur or Triadimefon fungicide,Punjab
+Wheat,Loose Smut,Ustilago tritici,Black dusty spore masses replacing grain heads,Use Vitavax seed treatment before sowing,All Pakistan
+Rice,Bacterial Leaf Blight,Xanthomonas oryzae,Water-soaked lesions turning yellow/white on leaves,Apply Copper Oxychloride and Streptocycline,Sindh & Punjab
+Rice,Blast,Magnaporthe oryzae,Eye-shaped lesions on leaves and neck rot,Spray Tricyclazole or Isoprothiolane,Punjab (Kalar Belt)
+Rice,Brown Spot,Bipolaris oryzae,Small oval brown spots on leaf blades,Apply Potassium fertilizers and Mancozeb spray,Sindh
+Cotton,Cotton Leaf Curl Virus (CLCuV),Begomovirus,Upward leaf curling and thickened veins,Control Whitefly vector using Imidacloprid,Punjab & Sindh
+Cotton,Bacterial Blight,Xanthomonas citri pv. malvacearum,Angular water-soaked leaf spots and boll rot,Use Delinted seed and spray Streptomycin,South Punjab
+Cotton,Fusarium Wilt,Fusarium oxysporum,Yellowing of leaves and vascular discoloration,Crop rotation and soil drenching with Carbendazim,Sindh
+Tomato,Late Blight,Phytophthora infestans,Dark water-soaked spots on leaves and stems,Spray Chlorothalonil or Metalaxyl+Mancozeb,Khyber Pakhtunkhwa & Punjab
+Tomato,Early Blight,Alternaria solani,Concentric ring target-like spots on leaves,Spray Mancozeb or Copper Hydroxide,All Pakistan
+Tomato,Tomato Yellow Leaf Curl Virus (TYLCV),Begomovirus,Stunted growth and yellow puckered leaves,Control Whitefly using Acetamiprid,Punjab
+Potato,Late Blight,Phytophthora infestans,Black spots on leaves with white fungal growth on underside,Spray Dimethomorph or Mancozeb preventative,Punjab & Swat
+Potato,Potato Virus Y (PVY),Potyvirus,Mosaic mottle on leaves and stunting,Use certified disease-free seed tubers,Punjab
+Sugarcane,Red Rot,Colletotrichum falcatum,Red internal tissue with white cross-bands and alcohol smell,Use resistant varieties and seed cane treatment,Central Punjab & Sindh
+Sugarcane,Whip Smut,Sporisorium scitamineum,Black whip-like structure emerging from shoot,Uproot infected clumps and burn them,Punjab
+Citrus,Citrus Canker,Xanthomonas citri,Raised corky lesions on fruit and leaves,Spray Copper Oxychloride during flush periods,Sargodha (Punjab)
+Citrus,Citrus Greening (Huanglongbing),Candidatus Liberibacter,Mottled yellowing of leaves and bitter lopsided fruit,Control Citrus Psyllid vector using Imidacloprid,Punjab
