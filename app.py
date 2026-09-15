@@ -26,9 +26,18 @@ st.markdown("""
 st.title("🌾 CropGuard")
 st.subheader("Spot crop disease early, before it spreads across the field.")
 
-# Hero Banner Image Integration
+# Styled Hero Banner Image
 hero_banner_url = "https://i.postimg.cc/s1BkM74n/hero-banner-png.png"
-st.image(hero_banner_url, use_container_width=True)
+st.markdown(
+    f"""
+    <div style="text-align: center; margin-bottom: 1.5rem;">
+        <img src="{hero_banner_url}" 
+             style="width: 100%; border-radius: 15px; box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.12); border: 1px solid #D4E4D8;" 
+             alt="CropGuard Hero Banner">
+    </div>
+    """,
+    unsafe_allow_html=True
+)
 
 st.write(
     """
