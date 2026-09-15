@@ -2,7 +2,7 @@ import streamlit as st
 
 st.set_page_config(page_title="CropGuard", page_icon="🌾", layout="centered")
 
-# Enhanced Custom CSS with Feature Cards Styling
+# Enhanced Custom CSS
 st.markdown("""
 <style>
     @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap');
@@ -85,13 +85,13 @@ st.markdown("""
 st.title("🌾 CropGuard")
 st.subheader("Spot crop disease early, before it spreads across the field.")
 
-# Styled Hero Banner Image
+# Styled Hero Banner Image with reduced width (max-width: 500px)
 hero_banner_url = "https://i.postimg.cc/s1BkM74n/hero-banner-png.png"
 st.markdown(
     f"""
     <div style="text-align: center; margin-bottom: 1.5rem;">
         <img src="{hero_banner_url}" 
-             style="width: 100%; border-radius: 15px; box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.12); border: 1px solid #D4E4D8;" 
+             style="max-width: 500px; width: 100%; border-radius: 15px; box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.12); border: 1px solid #D4E4D8;" 
              alt="CropGuard Hero Banner">
     </div>
     """,
