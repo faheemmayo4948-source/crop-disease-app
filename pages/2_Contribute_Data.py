@@ -1,7 +1,9 @@
 import time
 import streamlit as st
+from streamlit_geolocation import streamlit_geolocation
 from lib.cloudinary_client import upload_image
 from lib.firebase_client import save_sample
+from lib.weather_client import reverse_geocode
 
 st.set_page_config(page_title="Contribute Data · CropGuard", page_icon="📤")
 
@@ -15,6 +17,21 @@ if "user" not in st.session_state or not st.session_state.user:
 st.write(f"Contributing as: **{st.session_state.user['email']}**")
 st.write("Help grow the dataset used for research and future model training.")
 
+st.subheader("📍 Location")
+st.caption("Tap the pin to auto-detect your location — city name is captured automatically.")
+location = streamlit_geolocation()
+
+lat, lon, city_name = None, None, None
+
+if location and location.get("latitude"):
+    lat = location["latitude"]
+    lon = location["longitude"]
+    with st.spinner("Detecting city..."):
+        city_name = reverse_geocode(lat, lon)
+    st.success(f"📍 {city_name}  ({lat:.4f}, {lon:.4f})")
+else:
+    st.caption("Location not shared yet — tap the pin above.")
+
 crop_name = st.text_input("Crop name", placeholder="e.g. Rice, Wheat, Tomato")
 disease_label = st.text_input("Disease label", placeholder="e.g. Bacterial Leaf Blight")
 uploaded_file = st.file_uploader("Leaf image", type=["jpg", "jpeg", "png"])
@@ -24,7 +41,7 @@ if uploaded_file is not None:
 
 if st.button("Submit sample", type="primary"):
     if not crop_name or not disease_label or not uploaded_file:
-        st.error("Please fill every field and choose an image.")
+        st.error("Please fill all fields and choose an image.")
     else:
         with st.spinner("Uploading..."):
             try:
@@ -38,6 +55,9 @@ if st.button("Submit sample", type="primary"):
                     image_url,
                     farmer_uid=st.session_state.user["uid"],
                     farmer_email=st.session_state.user["email"],
+                    latitude=lat,
+                    longitude=lon,
+                    city_name=city_name,
                 )
 
                 st.success("Thank you — your sample has been added.")
