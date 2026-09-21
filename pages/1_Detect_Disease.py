@@ -13,25 +13,25 @@ st.set_page_config(page_title="Detect Disease · CropGuard", page_icon="🔍")
 st.title("🔍 Detect a crop disease")
 st.write("Upload a photo of the affected leaf to get a likely diagnosis.")
 
-crop_name = st.text_input("Crop name*", placeholder="e.g. Wheat, Cotton, Rice")
+crop_name = st.text_input(
+    "Crop name (optional — helps show next-disease forecast, but not required)",
+    placeholder="e.g. Wheat, Cotton, Rice",
+)
 uploaded_file = st.file_uploader("Leaf photo", type=["jpg", "jpeg", "png"])
 
 if uploaded_file is not None:
     st.image(uploaded_file, caption="Uploaded leaf", use_container_width=True)
 
     if st.button("Run detection", type="primary"):
-        if not crop_name:
-            st.error("Please enter the crop name first.")
-        else:
-            with st.spinner("Analyzing..."):
-                try:
-                    image_bytes = uploaded_file.getvalue()
-                    content_type = uploaded_file.type or "image/jpeg"
-                    predictions = detect_disease(image_bytes, content_type)
-                    st.session_state["last_predictions"] = predictions
-                    st.session_state["last_crop"] = crop_name
-                except Exception as e:
-                    st.error(f"Detection failed: {e}")
+        with st.spinner("Analyzing..."):
+            try:
+                image_bytes = uploaded_file.getvalue()
+                content_type = uploaded_file.type or "image/jpeg"
+                predictions = detect_disease(image_bytes, content_type)
+                st.session_state["last_predictions"] = predictions
+                st.session_state["last_crop"] = crop_name.strip() if crop_name else ""
+            except Exception as e:
+                st.error(f"Detection failed: {e}")
 
 # --- Show diagnosis result ---
 if "last_predictions" in st.session_state:
@@ -51,7 +51,7 @@ if "last_predictions" in st.session_state:
             st.write(f"**{label}** — {score:.1f}%")
             st.progress(min(int(score), 100))
 
-        # --- Treatment suggestion ---
+        # --- Treatment suggestion (works regardless of crop name) ---
         st.divider()
         st.subheader("💊 Suggested treatment")
         try:
@@ -68,7 +68,7 @@ if "last_predictions" in st.session_state:
         except Exception as e:
             st.warning(f"Could not load treatment suggestions: {e}")
 
-        # --- Weather + next disease forecast, shown automatically ---
+        # --- Weather + next disease forecast ---
         st.divider()
         st.subheader("🌤️ Weather & What Might Come Next")
         st.caption("Tap the pin to auto-detect your location, or type your city manually.")
@@ -104,22 +104,37 @@ if "last_predictions" in st.session_state:
                     current["temperature_2m"], current["relative_humidity_2m"], current["precipitation"]
                 )
 
-                st.subheader("⚠️ Next disease risk for this crop")
-
+                # --- Next-disease prediction: only if we can match the crop name ---
                 @st.cache_data
                 def load_database():
                     return pd.read_csv("data/disease_database.csv")
 
                 df = load_database()
-                crop_disease_list = df[df["Crop"].str.lower() == crop_for_result.lower()]["Disease"].tolist()
+                crop_disease_list = []
 
-                next_diseases = predict_next_diseases(crop_disease_list, risks)
+                if crop_for_result:
+                    # Case-insensitive, partial match so small typos/variations still work
+                    matched = df[df["Crop"].str.lower().str.contains(crop_for_result.lower(), na=False)]
+                    if matched.empty:
+                        matched = df[df["Crop"].str.lower() == crop_for_result.lower()]
+                    crop_disease_list = matched["Disease"].tolist()
 
-                if next_diseases:
-                    for d in next_diseases:
-                        st.warning(f"⚠️ **{d}** — current weather conditions may favor this disease next")
+                st.subheader("⚠️ Next disease risk")
+
+                if crop_for_result and crop_disease_list:
+                    next_diseases = predict_next_diseases(crop_disease_list, risks)
+                    if next_diseases:
+                        for d in next_diseases:
+                            st.warning(f"⚠️ **{d}** — current weather conditions may favor this disease next")
+                    else:
+                        st.info("No specific elevated disease risk detected for this crop right now.")
+                elif crop_for_result and not crop_disease_list:
+                    st.caption(
+                        f"Couldn't match \"{crop_for_result}\" to a known crop in our database, "
+                        "so showing general weather-based risk instead:"
+                    )
                 else:
-                    st.info("No specific elevated disease risk detected for this crop right now.")
+                    st.caption("Enter a crop name above to get crop-specific next-disease predictions. Showing general weather risk:")
 
                 with st.expander("See general weather-based risk breakdown"):
                     for label, level, reason, _ in risks:
