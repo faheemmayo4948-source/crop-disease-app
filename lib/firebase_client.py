@@ -17,7 +17,7 @@ def get_db():
 
 
 def save_sample(crop_name, disease_label, image_url, farmer_uid=None, farmer_email=None,
-                 latitude=None, longitude=None):
+                 latitude=None, longitude=None, city_name=None):
     db = get_db()
     db.collection("samples").add(
         {
@@ -28,6 +28,7 @@ def save_sample(crop_name, disease_label, image_url, farmer_uid=None, farmer_ema
             "farmerEmail": farmer_email,
             "latitude": latitude,
             "longitude": longitude,
+            "cityName": city_name,
             "createdAt": firestore.SERVER_TIMESTAMP,
         }
     )
