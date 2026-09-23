@@ -46,9 +46,10 @@ st.markdown("""
 </style>
 """, unsafe_allow_html=True)
 
+st.image("assets/hero-banner.png", use_container_width=True)
+
 st.title("🌾 CropGuard")
 st.subheader("Detect crop disease, get weather-based warnings, and shop trusted farm products — all in one place.")
-
 st.write(
     "Upload a leaf photo for instant diagnosis, get treatment guidance, see what's "
     "coming next based on your local weather, and connect with verified sellers for "
