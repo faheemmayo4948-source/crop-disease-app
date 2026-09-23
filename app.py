@@ -66,7 +66,7 @@ with col2:
 with col3:
     st.page_link("pages/12_Farmer_Profile.py", label="🚜 My Farm", icon="🚜")
 with col4:
-    st.page_link("pages/4_My_Account.py", label="👤 Account", icon="👤")
+        st.page_link("pages/5_Account.py", label="👤 Account", icon="👤")
 
 st.caption("More features — Contribute Data, Disease Database, Weather Forecast, and more — are in the sidebar menu. →")
 
