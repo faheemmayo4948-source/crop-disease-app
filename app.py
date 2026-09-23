@@ -50,6 +50,7 @@ st.image("assets/hero-banner.png", use_container_width=True)
 
 st.title("🌾 CropGuard")
 st.subheader("Detect crop disease, get weather-based warnings, and shop trusted farm products — all in one place.")
+
 st.write(
     "Upload a leaf photo for instant diagnosis, get treatment guidance, see what's "
     "coming next based on your local weather, and connect with verified sellers for "
@@ -67,7 +68,7 @@ with col2:
 with col3:
     st.page_link("pages/12_Farmer_Profile.py", label="🚜 My Farm", icon="🚜")
 with col4:
-        st.page_link("pages/5_Account.py", label="👤 Account", icon="👤")
+    st.page_link("pages/5_Account.py", label="👤 Account", icon="👤")
 
 st.caption("More features — Contribute Data, Disease Database, Weather Forecast, and more — are in the sidebar menu. →")
 
